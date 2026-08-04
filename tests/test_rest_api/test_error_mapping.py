@@ -10,7 +10,7 @@ async def test_mcp_unreachable_raises_mcp_unavailable():
         await client.search_catalogue(items=["basin tap"])
 
 
-def test_search_missing_items_and_candidates_is_422(client):
+def test_search_missing_items_is_422(client):
     resp = client.post("/v1/search_catalogue", json={})
     assert resp.status_code == 422
 

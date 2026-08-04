@@ -1,4 +1,4 @@
-def test_search_mode_shape(client, require_live_stack):
+def test_search_single_item_shape(client, require_live_stack):
     resp = client.post("/v1/search_catalogue", json={"items": ["basin tap chrome"]})
     assert resp.status_code == 200
     data = resp.json()
@@ -12,7 +12,7 @@ def test_search_mode_shape(client, require_live_stack):
         assert {"sku", "name", "brand", "confidence", "match_reason"} <= first.keys()
 
 
-def test_search_mode_multiple_items(client, require_live_stack):
+def test_search_multiple_items(client, require_live_stack):
     resp = client.post("/v1/search_catalogue", json={"items": ["toilet suite", "basin mixer"]})
     assert resp.status_code == 200
     data = resp.json()
@@ -21,21 +21,19 @@ def test_search_mode_multiple_items(client, require_live_stack):
     assert data["results"][1]["query"] == "basin mixer"
 
 
-def test_refine_mode_narrows_candidates(client, require_live_stack):
-    search_resp = client.post("/v1/search_catalogue", json={"items": ["mixer tap"], "max_results_per_item": 20})
-    skus = [m["sku"] for m in search_resp.json()["results"][0]["matches"]]
-    assert skus
-
+def test_max_results_per_item_is_respected(client, require_live_stack):
     resp = client.post(
-        "/v1/search_catalogue",
-        json={"candidate_skus": skus, "filters": {"brand": "Definitely Not Real"}},
+        "/v1/search_catalogue", json={"items": ["mixer tap"], "max_results_per_item": 2}
     )
     assert resp.status_code == 200
-    data = resp.json()
-    assert len(data["results"]) == 1
-    assert data["results"][0]["matches"] == []
+    assert len(resp.json()["results"][0]["matches"]) <= 2
 
 
-def test_neither_items_nor_candidates_is_422(client):
+def test_missing_items_is_422(client):
     resp = client.post("/v1/search_catalogue", json={})
+    assert resp.status_code == 422
+
+
+def test_empty_items_array_is_422(client):
+    resp = client.post("/v1/search_catalogue", json={"items": []})
     assert resp.status_code == 422

@@ -25,14 +25,9 @@ def print_candidates(matches):
 
 
 def print_search_results(item_groups):
-    """Prints each item's matches; returns all matched SKUs flattened, for the
-    `refine` command's convenience (refine narrows whichever SKUs you pass it)."""
-    all_skus = []
     for group in item_groups:
         print(f"  \"{group['query']}\" ({group['match_count']} matches):")
         print_candidates(group["matches"])
-        all_skus.extend(m["sku"] for m in group["matches"])
-    return all_skus
 
 
 def print_stock(locations):
@@ -44,8 +39,7 @@ def print_stock(locations):
 def print_help():
     print(
         "Commands:\n"
-        "  search <item> [| <item> ...]             (one or more items, e.g. search toilet lid | tap)\n"
-        "  refine <attr=value> [<attr=value> ...]   (narrows candidates from last search)\n"
+        "  search <item> [| <item> ...]   (one or more items, e.g. search toilet lid | tap)\n"
         "  stock <sku> [state]\n"
         "  customer <customer_id>\n"
         "  cart add <customer_id> <sku> [qty]\n"
@@ -59,17 +53,7 @@ def _parse_items(text):
     return [s.strip() for s in text.split("|") if s.strip()]
 
 
-def _parse_filters(text):
-    filters = {}
-    for pair in text.split():
-        key, _, value = pair.partition("=")
-        if key:
-            filters[key] = value
-    return filters
-
-
 async def run_rest():
-    candidate_skus = []
     async with httpx.AsyncClient(base_url=REST_BASE_URL, timeout=30) as client:
         while True:
             try:
@@ -84,14 +68,7 @@ async def run_rest():
                     items = _parse_items(cmd[len("search "):])
                     resp = await client.post("/search_catalogue", json={"items": items})
                     resp.raise_for_status()
-                    candidate_skus = print_search_results(resp.json()["results"])
-                elif cmd.startswith("refine "):
-                    filters = _parse_filters(cmd[len("refine "):])
-                    resp = await client.post(
-                        "/search_catalogue", json={"candidate_skus": candidate_skus, "filters": filters}
-                    )
-                    resp.raise_for_status()
-                    candidate_skus = print_search_results(resp.json()["results"])
+                    print_search_results(resp.json()["results"])
                 elif cmd.startswith("stock "):
                     parts = cmd[len("stock "):].split()
                     params = {"sku": parts[0]}
@@ -134,10 +111,8 @@ async def run_rest():
 
 async def run_via_mcp():
     from mcp_backend.availability import check_availability
-    from mcp_backend.refine import refine_candidates
     from mcp_backend.search import search_items
 
-    candidate_skus = []
     while True:
         try:
             cmd = input("\n(mcp)> ").strip()
@@ -147,12 +122,7 @@ async def run_via_mcp():
             break
 
         if cmd.startswith("search "):
-            groups = search_items(_parse_items(cmd[len("search "):]))
-            candidate_skus = print_search_results(groups)
-        elif cmd.startswith("refine "):
-            matches = refine_candidates(candidate_skus, _parse_filters(cmd[len("refine "):]))
-            candidate_skus = [m["sku"] for m in matches]
-            print_candidates(matches)
+            print_search_results(search_items(_parse_items(cmd[len("search "):])))
         elif cmd.startswith("stock "):
             parts = cmd[len("stock "):].split()
             state = parts[1] if len(parts) > 1 else None

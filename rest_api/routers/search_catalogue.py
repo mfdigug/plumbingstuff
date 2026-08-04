@@ -15,9 +15,6 @@ async def search_catalogue(payload: SearchCatalogueRequest, mcp_client=Depends(g
         items=payload.items,
         category=payload.category,
         max_results_per_item=payload.max_results_per_item,
-        candidate_skus=payload.candidate_skus,
-        filters=payload.filters.model_dump(exclude_none=True) if payload.candidate_skus else None,
-        query=payload.query,
     )
     return SearchCatalogueResponse(
         request_id=str(uuid.uuid4()),

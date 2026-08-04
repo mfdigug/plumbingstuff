@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field
 
 
 class ProductCandidateOut(BaseModel):
@@ -15,33 +15,12 @@ class ProductCandidateOut(BaseModel):
     match_reason: str
 
 
-class RefineFiltersIn(BaseModel):
-    brand: Optional[str] = None
-    size: Optional[str] = None
-    finish: Optional[str] = None
-    color: Optional[str] = None
-    material: Optional[str] = None
-    connection_type: Optional[str] = None
-    price_min: Optional[float] = None
-    price_max: Optional[float] = None
-
-
 class SearchCatalogueRequest(BaseModel):
-    # To search: set `items` (an array, one entry per distinct product asked for --
-    # even a single item goes in as a one-element array). Leave `candidate_skus` unset.
-    # To narrow a previous search: set `candidate_skus` (+ `filters` and/or `query`).
-    items: Optional[list[str]] = None
+    # One entry per distinct product the customer asked for -- even a single
+    # item goes in as a one-element array, e.g. items=["mixer tap"].
+    items: list[str] = Field(min_length=1)
     category: Optional[str] = None
     max_results_per_item: int = Field(default=4, ge=1, le=20)
-    candidate_skus: Optional[list[str]] = None
-    filters: RefineFiltersIn = RefineFiltersIn()
-    query: Optional[str] = None  # refine mode only: optional re-rank phrase
-
-    @model_validator(mode="after")
-    def _require_items_or_candidates(self):
-        if not self.items and not self.candidate_skus:
-            raise ValueError("either `items` (to search) or `candidate_skus` (to narrow) is required")
-        return self
 
 
 class ItemSearchResult(BaseModel):

@@ -10,53 +10,28 @@ from starlette.responses import PlainTextResponse
 
 from common.settings import settings
 from mcp_backend.availability import check_availability as _check_availability
-from mcp_backend.refine import refine_candidates as _refine_candidates
-from mcp_backend.schemas import RefineFilters
 from mcp_backend.search import search_items as _search_items
 
 mcp = FastMCP("plumbing-mock-backend", host=settings.mcp_server_host, port=settings.mcp_server_port)
 
 
 @mcp.tool()
-def search_catalogue(
-    items: list[str] | None = None,
-    category: str | None = None,
-    max_results_per_item: int = 4,
-    candidate_skus: list[str] | None = None,
-    filters: RefineFilters | None = None,
-    query: str | None = None,
-) -> dict:
-    """Search or narrow the product catalog -- one tool, two ways to call it:
+def search_catalogue(items: list[str], category: str | None = None, max_results_per_item: int = 4) -> dict:
+    """Search the product catalog. `items` is an array of free-text/slang
+    phrases -- ONE entry per distinct product the customer asked for. A
+    customer asking for "10 toilet lids and 3 taps" becomes
+    `items=["toilet lid", "tap"]`; a single item still goes in as a
+    one-element array, e.g. `items=["mixer tap"]`.
 
-    - TO SEARCH: pass `items`, an array of free-text/slang phrases -- ONE entry
-      per distinct product the customer asked for. A customer asking for "10
-      toilet lids and 3 taps" becomes `items=["toilet lid", "tap"]`; a single
-      item still goes in as a one-element array, e.g. `items=["mixer tap"]`.
-      Returns one result group per input item under `results`, each capped at
-      `max_results_per_item` ranked candidates under `matches` (default 4), with
-      a 0-1 `confidence` score (relative to that item's own query only -- not a
-      calibrated probability) and a `match_reason`. Matches are NOT pruned to
-      only strong ones: the tail may be weak, so use `confidence` and
-      `match_reason` to judge fit rather than assuming the top match is correct.
-      `category` optionally restricts every item's search to one top-level
-      catalog category (e.g. "Taps & Mixers", "Toilets & Cisterns").
-
-    - TO NARROW a previous search's results for ONE item: pass `candidate_skus`
-      (the `sku` values from one item's `matches` in a prior call) plus
-      `filters` -- brand, size, finish, color, material, connection_type,
-      price_min, price_max -- and/or a new `query` string to re-rank within that
-      narrowed set. Still returns the same shape (`results` with one group).
-      That group's `matches` is EMPTY if the filters eliminate every candidate;
-      that is a real outcome ("no matches after narrowing"), not an error --
-      never fall back to the unfiltered set when this happens.
+    Returns one result group per input item under `results`, each capped at
+    `max_results_per_item` ranked candidates under `matches` (default 4), with
+    a 0-1 `confidence` score (relative to that item's own query only -- not a
+    calibrated probability) and a `match_reason`. Matches are NOT pruned to
+    only strong ones: the tail may be weak, so use `confidence` and
+    `match_reason` to judge fit rather than assuming the top match is correct.
+    `category` optionally restricts every item's search to one top-level
+    catalog category (e.g. "Taps & Mixers", "Toilets & Cisterns").
     """
-    if candidate_skus:
-        filter_dict = (filters or RefineFilters()).model_dump(exclude_none=True)
-        matches = _refine_candidates(candidate_skus, filter_dict, query=query)
-        return {"results": [{"query": query or "", "matches": matches, "match_count": len(matches)}]}
-
-    if not items:
-        raise ValueError("search_catalogue requires `items` when `candidate_skus` is not provided")
     return {"results": _search_items(items, category=category, max_results_per_item=max_results_per_item)}
 
 
