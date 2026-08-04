@@ -1,0 +1,75 @@
+# Render Blueprint for the mock plumbing ecommerce backend.
+#
+# Architecture (matches the local docker-compose setup):
+#   rest-api (public Web Service)
+#     -> mcp-server (private Service, internal only)
+#         -> elasticsearch (private Service, internal only)
+#   rest-api also talks to elasticsearch directly for customers/cart (bypasses MCP).
+#
+# Deploy: Render dashboard -> New -> Blueprint -> point at this repo.
+#
+# NOTES TO VERIFY IN RENDER'S DASHBOARD/DOCS WHEN DEPLOYING (couldn't confirm
+# these hands-on from here, platform specifics can shift):
+#   - The exact internal hostname/port convention for private-service-to-service
+#     calls (used below as `http://<service-name>:<port>`, mirroring docker-compose).
+#   - Whether private services (`pserv`) must bind Render's injected $PORT env var
+#     rather than the fixed port declared here -- both Dockerfiles already read
+#     $PORT with a fallback to the fixed port, so this should work either way.
+#
+# After first deploy, seed the mock data once via the mcp-server service's Shell
+# tab in the Render dashboard:
+#   python scripts/run_pipeline.py
+# (This also needs the trial license step for Elasticsearch's RRF retriever --
+# see the curl command in mcp-server's shell:
+#   curl -X POST "http://elasticsearch:9200/_license/start_trial?acknowledge=true"
+# )
+
+services:
+  - type: pserv
+    name: elasticsearch
+    runtime: image
+    image:
+      url: docker.elastic.co/elasticsearch/elasticsearch:9.4.4
+    plan: standard
+    region: oregon
+    envVars:
+      - key: discovery.type
+        value: single-node
+      - key: xpack.security.enabled
+        value: "false"
+      - key: xpack.security.http.ssl.enabled
+        value: "false"
+      - key: ES_JAVA_OPTS
+        value: "-Xms1g -Xmx1g"
+    disk:
+      name: es-data
+      mountPath: /usr/share/elasticsearch/data
+      sizeGB: 2
+
+  - type: pserv
+    name: mcp-server
+    runtime: docker
+    dockerfilePath: ./Dockerfile.mcp
+    plan: standard
+    region: oregon
+    envVars:
+      - key: ES_HOST
+        value: http://elasticsearch:9200
+      - key: MCP_TRANSPORT
+        value: streamable-http
+      - key: MCP_SERVER_HOST
+        value: "0.0.0.0"
+      - key: MCP_SERVER_PORT
+        value: "8100"
+
+  - type: web
+    name: rest-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile.api
+    plan: starter
+    region: oregon
+    envVars:
+      - key: ES_HOST
+        value: http://elasticsearch:9200
+      - key: MCP_SERVER_URL
+        value: http://mcp-server:8100/mcp

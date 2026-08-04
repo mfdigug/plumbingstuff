@@ -7,9 +7,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf 
 COPY pyproject.toml ./
 COPY common ./common
 COPY mcp_backend ./mcp_backend
+COPY scripts ./scripts
+COPY data/seed ./data/seed
+COPY mappings ./mappings
 
-RUN pip install --no-cache-dir -e .
+RUN pip install --no-cache-dir -e ".[dev]"
 
 EXPOSE 8100
 
-CMD ["python", "-m", "mcp_backend.server"]
+# scripts/, data/seed/ and mappings/ are included so the mock catalog can be
+# seeded post-deploy via `python scripts/run_pipeline.py` from this container's
+# Render shell -- not run automatically on boot.
+CMD ["sh", "-c", "python -m mcp_backend.server --port ${PORT:-8100}"]
