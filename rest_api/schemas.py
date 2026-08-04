@@ -27,27 +27,33 @@ class RefineFiltersIn(BaseModel):
 
 
 class SearchCatalogueRequest(BaseModel):
-    # To search: set `query`, leave `candidate_skus` unset.
+    # To search: set `items` (an array, one entry per distinct product asked for --
+    # even a single item goes in as a one-element array). Leave `candidate_skus` unset.
     # To narrow a previous search: set `candidate_skus` (+ `filters` and/or `query`).
-    query: Optional[str] = None
+    items: Optional[list[str]] = None
     category: Optional[str] = None
-    max_results: int = Field(default=20, ge=1, le=50)
+    max_results_per_item: int = Field(default=4, ge=1, le=20)
     candidate_skus: Optional[list[str]] = None
     filters: RefineFiltersIn = RefineFiltersIn()
+    query: Optional[str] = None  # refine mode only: optional re-rank phrase
 
     @model_validator(mode="after")
-    def _require_query_or_candidates(self):
-        if not self.query and not self.candidate_skus:
-            raise ValueError("either `query` (to search) or `candidate_skus` (to narrow) is required")
+    def _require_items_or_candidates(self):
+        if not self.items and not self.candidate_skus:
+            raise ValueError("either `items` (to search) or `candidate_skus` (to narrow) is required")
         return self
 
 
-class SearchResponse(BaseModel):
-    request_id: str
+class ItemSearchResult(BaseModel):
     query: str
+    matches: list[ProductCandidateOut]
+    match_count: int
+
+
+class SearchCatalogueResponse(BaseModel):
+    request_id: str
     generated_at: str
-    results: list[ProductCandidateOut]
-    result_count: int
+    results: list[ItemSearchResult]
 
 
 class StoreStockOut(BaseModel):

@@ -7,10 +7,10 @@ from rest_api.mcp_client import MCPBackendClient
 async def test_mcp_unreachable_raises_mcp_unavailable():
     client = MCPBackendClient(server_url="http://127.0.0.1:1/mcp")
     with pytest.raises(MCPUnavailableError):
-        await client.search_catalogue(query="basin tap")
+        await client.search_catalogue(items=["basin tap"])
 
 
-def test_search_missing_query_is_422(client):
+def test_search_missing_items_and_candidates_is_422(client):
     resp = client.post("/v1/search_catalogue", json={})
     assert resp.status_code == 422
 

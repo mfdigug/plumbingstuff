@@ -121,3 +121,11 @@ def search_products(query, category=None, max_results=20):
             }
         )
     return candidates
+
+
+def search_items(queries, category=None, max_results_per_item=4):
+    groups = []
+    for query in queries:
+        matches = search_products(query, category=category, max_results=max_results_per_item)
+        groups.append({"query": query, "matches": matches, "match_count": len(matches)})
+    return groups
