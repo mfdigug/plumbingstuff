@@ -1,0 +1,72 @@
+# Category/subcategory -> slang & trade-jargon pool for scripts/generate_mock_catalog.py.
+# Terms are attached probabilistically (not to every SKU — see generator `slang_attach_probability`)
+# so the catalog has genuine, realistic tagging gaps.
+#
+# `ambiguous_pool` terms are shared across categories on purpose, to force real
+# disambiguation scenarios for the refine tool (e.g. "rose" could mean a shower rose,
+# but is deliberately also attached to a red-herring line in bathroom_accessories).
+
+by_subcategory:
+  copper_elbow: ["elbow fitting", "90 elbow", "copper bend"]
+  copper_coupling: ["coupling", "copper joiner"]
+  pvc_ptrap: ["p-trap", "ptrap", "waste trap"]
+  pvc_strap: ["s-trap", "strap"]
+  pex_fitting: ["pex fitting", "push-fit fitting", "speedfit"]
+
+  basin_mixer: ["basin tap", "vanity mixer", "hand basin mixer"]
+  kitchen_mixer: ["sink mixer", "kitchen tap", "sink tap"]
+  bath_mixer: ["bath tap", "bath filler"]
+  wall_tap: ["wall taps", "garden tap set", "hose taps"]
+
+  wall_faced_suite: ["loo", "dunny", "throne", "toilet suite", "wc", "wall faced toilet"]
+  back_to_wall_suite: ["loo", "dunny", "toilet suite", "btw toilet"]
+  close_coupled_suite: ["loo", "dunny", "toilet suite", "close coupled toilet"]
+  cistern: ["toilet tank", "flush tank", "cistern unit"]
+
+  electric_storage: ["hot water unit", "hws", "storage heater", "electric hot water tank"]
+  gas_storage: ["hot water unit", "hws", "gas hot water tank"]
+  continuous_flow_gas: ["instant hot water", "continuous flow unit", "gas instantaneous"]
+  heat_pump: ["heat pump hws", "heat pump hot water unit"]
+
+  ball_valve: ["stopcock", "iso valve", "shut-off valve", "ball cock"]
+  gate_valve: ["stopcock", "gate cock"]
+  isolation_valve: ["iso valve", "stop valve"]
+  pressure_limiting_valve: ["plv", "pressure valve", "pressure reducer"]
+
+  floor_waste: ["floor drain", "shower waste"]
+  grate: ["drain cover", "drain grate"]
+  stormwater_pit: ["drain pit", "stormwater box"]
+
+  wall_hung_basin: ["hand basin", "wall basin", "sink bowl"]
+  vanity_unit: ["vanity", "bathroom cabinet", "vanity cabinet"]
+  countertop_basin: ["counter basin", "bowl basin"]
+
+  shower_mixer: ["shower tap", "shower control"]
+  shower_rose: ["rose", "shower head", "showerhead"]
+  shower_rail: ["rail shower", "sliding rail"]
+
+  towel_rail: ["towel bar", "towel warmer"]
+  toilet_roll_holder: ["loo roll holder", "tp holder"]
+  soap_dispenser: ["soap pump"]
+
+  silicone_sealant: ["silicone", "bathroom sealant", "gap filler"]
+  ptfe_tape: ["thread tape", "plumbers tape", "teflon tape"]
+  pipe_adhesive: ["pvc glue", "solvent cement"]
+
+  pipe_wrench: ["stillson", "pipe spanner"]
+  basin_wrench: ["tap back-nut spanner"]
+  pipe_cutter: ["tube cutter"]
+
+# Deliberately overlapping terms attached across unrelated subcategories on purpose,
+# to create real ambiguity for the refine tool to resolve (see generator for wiring).
+ambiguous_pool:
+  rose:
+    - shower_rose
+    - toilet_roll_holder
+  tap:
+    - basin_mixer
+    - kitchen_mixer
+    - wall_tap
+  unit:
+    - electric_storage
+    - vanity_unit

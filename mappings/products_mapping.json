@@ -1,0 +1,67 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "analysis": {
+      "filter": {
+        "trade_synonyms": {
+          "type": "synonym_graph",
+          "synonyms": [
+            "hws, hot water system, hot water unit",
+            "wc, toilet, toilet suite",
+            "plv, pressure limiting valve, pressure limiting",
+            "ptrap, p-trap, p trap",
+            "strap, s-trap, s trap",
+            "mixer tap, mixer",
+            "vanity, vanity unit"
+          ]
+        }
+      },
+      "analyzer": {
+        "trade_text": {
+          "tokenizer": "standard",
+          "filter": ["lowercase", "asciifolding", "trade_synonyms"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "sku": { "type": "keyword" },
+      "name": {
+        "type": "text",
+        "analyzer": "trade_text",
+        "fields": { "keyword": { "type": "keyword" } }
+      },
+      "description": { "type": "text", "analyzer": "trade_text" },
+      "category": { "type": "keyword" },
+      "subcategory": { "type": "keyword" },
+      "brand": {
+        "type": "keyword",
+        "fields": { "text": { "type": "text" } }
+      },
+      "search_terms": { "type": "text", "analyzer": "trade_text" },
+      "attributes": {
+        "properties": {
+          "size": { "type": "keyword" },
+          "finish": { "type": "keyword" },
+          "color": { "type": "keyword" },
+          "material": { "type": "keyword" },
+          "connection_type": { "type": "keyword" },
+          "watermark_rating": { "type": "keyword" },
+          "wels_star_rating": { "type": "float" }
+        }
+      },
+      "price_aud": { "type": "scaled_float", "scaling_factor": 100 },
+      "embedding": {
+        "type": "dense_vector",
+        "dims": 384,
+        "index": true,
+        "similarity": "cosine",
+        "index_options": { "type": "int8_hnsw", "m": 16, "ef_construction": 100 }
+      },
+      "created_at": { "type": "date" },
+      "updated_at": { "type": "date" }
+    }
+  }
+}

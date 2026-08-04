@@ -1,0 +1,313 @@
+# Drives combinatorial SKU generation in scripts/generate_mock_catalog.py.
+# `weight` sets each category's relative share of the ~500 total SKUs.
+# Each subcategory's `attribute_options` are sampled (not fully cross-producted)
+# to build each SKU's `attributes` block and fill its `name_template`.
+
+categories:
+  - key: pipes_fittings
+    name: "Pipes & Fittings"
+    weight: 130
+    price_range: [3, 85]
+    subcategories:
+      - key: copper_elbow
+        name: "Copper Elbow"
+        name_template: "{brand} Copper Elbow {size}"
+        attribute_options:
+          size: ["15mm", "20mm", "25mm", "32mm"]
+          connection_type: ["Compression", "Solder"]
+          material: ["Copper"]
+      - key: copper_coupling
+        name: "Copper Coupling"
+        name_template: "{brand} Copper Coupling {size}"
+        attribute_options:
+          size: ["15mm", "20mm", "25mm", "32mm", "40mm"]
+          connection_type: ["Compression", "Solder"]
+          material: ["Copper"]
+      - key: pvc_ptrap
+        name: "PVC P-Trap"
+        name_template: "{brand} PVC P-Trap {size}"
+        attribute_options:
+          size: ["40mm", "50mm"]
+          connection_type: ["Push-Fit"]
+          material: ["PVC"]
+      - key: pvc_strap
+        name: "PVC S-Trap"
+        name_template: "{brand} PVC S-Trap {size}"
+        attribute_options:
+          size: ["40mm", "50mm"]
+          connection_type: ["Push-Fit"]
+          material: ["PVC"]
+      - key: pex_fitting
+        name: "PEX Push-Fit Fitting"
+        name_template: "{brand} PEX Push-Fit {fitting_shape} {size}"
+        attribute_options:
+          size: ["16mm", "20mm", "25mm"]
+          fitting_shape: ["Elbow", "Tee", "Coupling"]
+          connection_type: ["Push-Fit"]
+          material: ["PEX"]
+
+  - key: taps_mixers
+    name: "Taps & Mixers"
+    weight: 100
+    price_range: [45, 650]
+    subcategories:
+      - key: basin_mixer
+        name: "Basin Mixer"
+        name_template: "{brand} {series} Basin Mixer — {finish}"
+        attribute_options:
+          finish: ["Chrome", "Matte Black", "Brushed Nickel", "Brushed Gold"]
+          connection_type: ["Deck-Mounted", "Wall-Mounted"]
+          series: ["Cosmo", "Urbane", "Axle", "Vivid", "Nero"]
+      - key: kitchen_mixer
+        name: "Kitchen Mixer"
+        name_template: "{brand} {series} Kitchen Mixer — {finish}"
+        attribute_options:
+          finish: ["Chrome", "Matte Black", "Brushed Nickel"]
+          connection_type: ["Deck-Mounted", "Pull-Out"]
+          series: ["Liano", "Sussex", "Aquis", "Vivid"]
+      - key: bath_mixer
+        name: "Bath Mixer"
+        name_template: "{brand} {series} Bath Mixer — {finish}"
+        attribute_options:
+          finish: ["Chrome", "Matte Black", "Brushed Gold"]
+          connection_type: ["Deck-Mounted", "Wall-Mounted"]
+          series: ["Cosmo", "Urbane", "Nero"]
+      - key: wall_tap
+        name: "Wall Tap Set"
+        name_template: "{brand} {series} Wall Tap Set — {finish}"
+        attribute_options:
+          finish: ["Chrome", "Matte Black"]
+          connection_type: ["Wall-Mounted"]
+          series: ["Titan", "Classic", "Federation"]
+
+  - key: toilets_cisterns
+    name: "Toilets & Cisterns"
+    weight: 55
+    price_range: [180, 950]
+    subcategories:
+      - key: wall_faced_suite
+        name: "Wall-Faced Toilet Suite"
+        name_template: "{brand} {series} Wall-Faced Toilet Suite — {finish}"
+        attribute_options:
+          finish: ["White", "Gloss White"]
+          connection_type: ["Wall-Faced"]
+          wels_star_rating: [3.0, 3.5, 4.0]
+          series: ["Cosmo", "Liano", "Urbane"]
+      - key: back_to_wall_suite
+        name: "Back-to-Wall Toilet Suite"
+        name_template: "{brand} {series} Back-to-Wall Toilet Suite — {finish}"
+        attribute_options:
+          finish: ["White", "Gloss White"]
+          connection_type: ["Back-to-Wall"]
+          wels_star_rating: [3.0, 4.0, 4.5]
+          series: ["Cosmo", "Sundara", "Cube"]
+      - key: close_coupled_suite
+        name: "Close-Coupled Toilet Suite"
+        name_template: "{brand} {series} Close-Coupled Toilet Suite — {finish}"
+        attribute_options:
+          finish: ["White"]
+          connection_type: ["Close-Coupled"]
+          wels_star_rating: [3.0, 3.5]
+          series: ["Care 400", "Opal", "Trentino"]
+      - key: cistern
+        name: "Cistern"
+        name_template: "{brand} {series} Cistern — {finish}"
+        attribute_options:
+          finish: ["White"]
+          connection_type: ["Concealed", "Exposed"]
+          series: ["Invisi", "Slimline"]
+
+  - key: hot_water
+    name: "Hot Water Systems"
+    weight: 35
+    price_range: [650, 3200]
+    subcategories:
+      - key: electric_storage
+        name: "Electric Storage Hot Water System"
+        name_template: "{brand} {capacity} Electric Storage Hot Water System"
+        attribute_options:
+          capacity: ["125L", "160L", "250L", "315L"]
+          connection_type: ["Mains Pressure"]
+      - key: gas_storage
+        name: "Gas Storage Hot Water System"
+        name_template: "{brand} {capacity} Gas Storage Hot Water System"
+        attribute_options:
+          capacity: ["135L", "170L", "270L"]
+          connection_type: ["Mains Pressure"]
+      - key: continuous_flow_gas
+        name: "Continuous Flow Gas Hot Water System"
+        name_template: "{brand} {capacity} Continuous Flow Gas Hot Water System"
+        attribute_options:
+          capacity: ["16L/min", "20L/min", "26L/min", "32L/min"]
+          connection_type: ["Mains Pressure"]
+      - key: heat_pump
+        name: "Heat Pump Hot Water System"
+        name_template: "{brand} {capacity} Heat Pump Hot Water System"
+        attribute_options:
+          capacity: ["270L", "315L"]
+          connection_type: ["Mains Pressure"]
+
+  - key: valves
+    name: "Valves"
+    weight: 45
+    price_range: [8, 210]
+    subcategories:
+      - key: ball_valve
+        name: "Ball Valve"
+        name_template: "{brand} Ball Valve {size}"
+        attribute_options:
+          size: ["15mm", "20mm", "25mm", "32mm"]
+          material: ["Brass"]
+      - key: gate_valve
+        name: "Gate Valve"
+        name_template: "{brand} Gate Valve {size}"
+        attribute_options:
+          size: ["20mm", "25mm", "32mm", "40mm"]
+          material: ["Brass"]
+      - key: isolation_valve
+        name: "Isolation Valve"
+        name_template: "{brand} Isolation Valve {size}"
+        attribute_options:
+          size: ["15mm", "20mm"]
+          material: ["Brass"]
+      - key: pressure_limiting_valve
+        name: "Pressure Limiting Valve"
+        name_template: "{brand} Pressure Limiting Valve {size} — {pressure_rating}"
+        attribute_options:
+          size: ["20mm", "25mm"]
+          pressure_rating: ["350kPa", "500kPa"]
+          material: ["Brass"]
+
+  - key: drainage
+    name: "Drainage"
+    weight: 35
+    price_range: [10, 180]
+    subcategories:
+      - key: floor_waste
+        name: "Floor Waste"
+        name_template: "{brand} {finish} Floor Waste {size}"
+        attribute_options:
+          size: ["80mm", "100mm"]
+          finish: ["Chrome", "Stainless Steel", "Matte Black"]
+      - key: grate
+        name: "Drain Grate"
+        name_template: "{brand} {finish} Drain Grate {size}"
+        attribute_options:
+          size: ["80mm", "100mm", "300mm"]
+          finish: ["Stainless Steel"]
+      - key: stormwater_pit
+        name: "Stormwater Pit"
+        name_template: "{brand} Stormwater Pit {size}"
+        attribute_options:
+          size: ["300mm", "450mm"]
+          material: ["PVC"]
+
+  - key: basins_vanities
+    name: "Basins & Vanities"
+    weight: 40
+    price_range: [90, 1400]
+    subcategories:
+      - key: wall_hung_basin
+        name: "Wall-Hung Basin"
+        name_template: "{brand} {series} Wall-Hung Basin — {finish}"
+        attribute_options:
+          finish: ["White"]
+          series: ["Cosmo", "Contura", "Luna"]
+      - key: vanity_unit
+        name: "Vanity Unit"
+        name_template: "{brand} {size} Vanity Unit — {finish}"
+        attribute_options:
+          size: ["600mm", "750mm", "900mm", "1200mm"]
+          finish: ["Matte White", "Oak", "Matte Black"]
+      - key: countertop_basin
+        name: "Countertop Basin"
+        name_template: "{brand} {series} Countertop Basin — {finish}"
+        attribute_options:
+          finish: ["White", "Matte Black"]
+          series: ["Luna", "Reflection"]
+
+  - key: showers
+    name: "Showers"
+    weight: 40
+    price_range: [35, 520]
+    subcategories:
+      - key: shower_mixer
+        name: "Shower Mixer"
+        name_template: "{brand} {series} Shower Mixer — {finish}"
+        attribute_options:
+          finish: ["Chrome", "Matte Black", "Brushed Nickel"]
+          series: ["Cosmo", "Urbane", "Vivid"]
+      - key: shower_rose
+        name: "Shower Rose"
+        name_template: "{brand} {size} Shower Rose — {finish}"
+        attribute_options:
+          size: ["150mm", "200mm", "250mm"]
+          finish: ["Chrome", "Matte Black"]
+      - key: shower_rail
+        name: "Shower Rail Set"
+        name_template: "{brand} Shower Rail Set — {finish}"
+        attribute_options:
+          finish: ["Chrome", "Matte Black"]
+
+  - key: bathroom_accessories
+    name: "Bathroom Accessories"
+    weight: 30
+    price_range: [15, 220]
+    subcategories:
+      - key: towel_rail
+        name: "Towel Rail"
+        name_template: "{brand} {size} Towel Rail — {finish}"
+        attribute_options:
+          size: ["Single", "Double", "Heated"]
+          finish: ["Chrome", "Matte Black", "Brushed Nickel"]
+      - key: toilet_roll_holder
+        name: "Toilet Roll Holder"
+        name_template: "{brand} Toilet Roll Holder — {finish}"
+        attribute_options:
+          finish: ["Chrome", "Matte Black"]
+      - key: soap_dispenser
+        name: "Soap Dispenser"
+        name_template: "{brand} Wall-Mounted Soap Dispenser — {finish}"
+        attribute_options:
+          finish: ["Chrome", "Matte Black"]
+
+  - key: sealants_adhesives
+    name: "Sealants & Adhesives"
+    weight: 20
+    price_range: [6, 45]
+    subcategories:
+      - key: silicone_sealant
+        name: "Silicone Sealant"
+        name_template: "{brand} Silicone Sealant {size} — {color}"
+        attribute_options:
+          size: ["300g", "450g"]
+          color: ["White", "Clear", "Grey"]
+      - key: ptfe_tape
+        name: "PTFE Thread Tape"
+        name_template: "{brand} PTFE Thread Tape"
+        attribute_options: {}
+      - key: pipe_adhesive
+        name: "PVC Pipe Adhesive"
+        name_template: "{brand} PVC Pipe Adhesive {size}"
+        attribute_options:
+          size: ["125mL", "500mL"]
+
+  - key: tools
+    name: "Tools"
+    weight: 25
+    price_range: [12, 280]
+    subcategories:
+      - key: pipe_wrench
+        name: "Pipe Wrench"
+        name_template: "{brand} {size} Pipe Wrench"
+        attribute_options:
+          size: ["250mm", "350mm", "450mm"]
+      - key: basin_wrench
+        name: "Basin Wrench"
+        name_template: "{brand} Basin Wrench"
+        attribute_options: {}
+      - key: pipe_cutter
+        name: "Pipe Cutter"
+        name_template: "{brand} {material} Pipe Cutter"
+        attribute_options:
+          material: ["Copper", "PVC"]

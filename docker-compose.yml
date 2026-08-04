@@ -1,0 +1,66 @@
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.4.4
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.4.4
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    profiles: ["dev-tools"]
+
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      - ES_HOST=http://elasticsearch:9200
+      - MCP_TRANSPORT=streamable-http
+      - MCP_SERVER_HOST=0.0.0.0
+      - MCP_SERVER_PORT=8100
+    ports:
+      - "8100:8100"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8100/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    profiles: ["server"]
+
+  rest-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    depends_on:
+      mcp-server:
+        condition: service_healthy
+    environment:
+      - MCP_SERVER_URL=http://mcp-server:8100/mcp
+      - ES_HOST=http://elasticsearch:9200
+    ports:
+      - "8080:8080"
+    profiles: ["server"]
+
+volumes:
+  es_data:

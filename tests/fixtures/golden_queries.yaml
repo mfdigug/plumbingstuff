@@ -1,0 +1,44 @@
+# ~20 curated slang/ambiguous queries. Each expects an *acceptable set* of
+# categories/subcategories among the top-20 results, not one "correct" SKU --
+# matches the intentional messiness of the hybrid scoring (see search.py).
+queries:
+  - query: "leaky loo cistern"
+    expect_any_category: ["Toilets & Cisterns"]
+  - query: "dunny is blocked, need a new one"
+    expect_any_category: ["Toilets & Cisterns"]
+  - query: "need a new mixer tap for the kitchen"
+    expect_any_subcategory: ["Kitchen Mixer"]
+  - query: "hot water unit keeps cutting out"
+    expect_any_category: ["Hot Water Systems"]
+  - query: "need a stopcock for the mains"
+    expect_any_subcategory: ["Ball Valve", "Gate Valve", "Isolation Valve"]
+  - query: "shower head is dripping"
+    expect_any_subcategory: ["Shower Rose"]
+  - query: "basin tap chrome"
+    expect_any_subcategory: ["Basin Mixer"]
+  - query: "pressure limiting valve 20mm"
+    expect_any_subcategory: ["Pressure Limiting Valve"]
+  - query: "vanity unit 900mm matte black"
+    expect_any_subcategory: ["Vanity Unit"]
+  - query: "silicone sealant for the bathroom"
+    expect_any_subcategory: ["Silicone Sealant"]
+  - query: "instant gas hot water"
+    expect_any_subcategory: ["Continuous Flow Gas Hot Water System"]
+  - query: "heated towel rail"
+    expect_any_subcategory: ["Towel Rail"]
+  - query: "copper elbow 20mm"
+    expect_any_subcategory: ["Copper Elbow"]
+  - query: "pipe wrench"
+    expect_any_subcategory: ["Pipe Wrench"]
+  - query: "floor waste drain chrome"
+    expect_any_subcategory: ["Floor Waste"]
+  - query: "wall faced toilet suite Caroma"
+    expect_any_subcategory: ["Wall-Faced Toilet Suite"]
+  - query: "plumbers tape ptfe"
+    expect_any_subcategory: ["PTFE Thread Tape"]
+  - query: "s-trap pvc waste"
+    expect_any_subcategory: ["PVC S-Trap"]
+  - query: "heat pump hot water unit"
+    expect_any_subcategory: ["Heat Pump Hot Water System"]
+  - query: "bath filler tap"
+    expect_any_subcategory: ["Bath Mixer"]

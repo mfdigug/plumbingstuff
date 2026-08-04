@@ -1,0 +1,95 @@
+# 15 hand-curated AU store locations (real trade/industrial suburb names, not Faker,
+# for authentic geographic texture). `tier` drives stock carry-probability in
+# scripts/generate_stock_levels.py: flagship ~85%, mid ~60%, regional ~35%.
+
+stores:
+  - store_id: SYD-ALEX
+    store_name: "Sydney Alexandria"
+    suburb: Alexandria
+    state: NSW
+    postcode: "2015"
+    tier: flagship
+  - store_id: MEL-PRE
+    store_name: "Melbourne Preston"
+    suburb: Preston
+    state: VIC
+    postcode: "3072"
+    tier: flagship
+  - store_id: BNE-SAL
+    store_name: "Brisbane Salisbury"
+    suburb: Salisbury
+    state: QLD
+    postcode: "4107"
+    tier: flagship
+  - store_id: PER-OSB
+    store_name: "Perth Osborne Park"
+    suburb: Osborne Park
+    state: WA
+    postcode: "6017"
+    tier: flagship
+  - store_id: ADL-REG
+    store_name: "Adelaide Regency Park"
+    suburb: Regency Park
+    state: SA
+    postcode: "5010"
+    tier: mid
+  - store_id: CBR-FYS
+    store_name: "Canberra Fyshwick"
+    suburb: Fyshwick
+    state: ACT
+    postcode: "2609"
+    tier: mid
+  - store_id: HBA-GLE
+    store_name: "Hobart Glenorchy"
+    suburb: Glenorchy
+    state: TAS
+    postcode: "7010"
+    tier: mid
+  - store_id: DRW-WIN
+    store_name: "Darwin Winnellie"
+    suburb: Winnellie
+    state: NT
+    postcode: "0820"
+    tier: mid
+  - store_id: GC-MOL
+    store_name: "Gold Coast Molendinar"
+    suburb: Molendinar
+    state: QLD
+    postcode: "4214"
+    tier: mid
+  - store_id: NEW-MAY
+    store_name: "Newcastle Mayfield"
+    suburb: Mayfield
+    state: NSW
+    postcode: "2304"
+    tier: mid
+  - store_id: WOL-UNA
+    store_name: "Wollongong Unanderra"
+    suburb: Unanderra
+    state: NSW
+    postcode: "2526"
+    tier: regional
+  - store_id: GEE-NGE
+    store_name: "Geelong North Geelong"
+    suburb: North Geelong
+    state: VIC
+    postcode: "3215"
+    tier: regional
+  - store_id: TSV-GAR
+    store_name: "Townsville Garbutt"
+    suburb: Garbutt
+    state: QLD
+    postcode: "4814"
+    tier: regional
+  - store_id: BEN-EBE
+    store_name: "Bendigo East Bendigo"
+    suburb: East Bendigo
+    state: VIC
+    postcode: "3550"
+    tier: regional
+  - store_id: TWB-HAR
+    store_name: "Toowoomba Harristown"
+    suburb: Harristown
+    state: QLD
+    postcode: "4350"
+    tier: regional

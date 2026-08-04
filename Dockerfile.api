@@ -1,0 +1,13 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY pyproject.toml ./
+COPY common ./common
+COPY rest_api ./rest_api
+
+RUN pip install --no-cache-dir -e .
+
+EXPOSE 8080
+
+CMD ["uvicorn", "rest_api.main:app", "--host", "0.0.0.0", "--port", "8080"]

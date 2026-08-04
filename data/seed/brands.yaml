@@ -1,0 +1,43 @@
+# Real-feeling AU trade brand names used purely as flavor text for this internal,
+# non-published mock dev tool. tier affects price multiplier in generate_mock_catalog.py.
+brands:
+  - name: Caroma
+    tier: premium
+  - name: Methven
+    tier: premium
+  - name: Rheem
+    tier: premium
+  - name: Rinnai
+    tier: premium
+  - name: Galvin Engineering
+    tier: premium
+  - name: Dorf
+    tier: mid
+  - name: Clark
+    tier: mid
+  - name: Everhard
+    tier: mid
+  - name: Fienza
+    tier: mid
+  - name: Dux
+    tier: mid
+  - name: Vulcan
+    tier: mid
+  - name: Aquamax
+    tier: mid
+  - name: Zip
+    tier: mid
+  - name: Enware
+    tier: mid
+  - name: Milli
+    tier: mid
+  - name: Meir
+    tier: premium
+  - name: Streamline
+    tier: value
+  - name: Philmac
+    tier: mid
+  - name: Iplex
+    tier: value
+  - name: Vinidex
+    tier: value

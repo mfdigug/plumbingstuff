@@ -1,0 +1,25 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0
+  },
+  "mappings": {
+    "properties": {
+      "customer_id": { "type": "keyword" },
+      "first_name": { "type": "keyword" },
+      "last_name": { "type": "keyword" },
+      "email": { "type": "keyword" },
+      "phone": { "type": "keyword" },
+      "preferred_store_id": { "type": "keyword" },
+      "address": {
+        "properties": {
+          "street": { "type": "text" },
+          "suburb": { "type": "keyword" },
+          "state": { "type": "keyword" },
+          "postcode": { "type": "keyword" }
+        }
+      },
+      "created_at": { "type": "date" }
+    }
+  }
+}
