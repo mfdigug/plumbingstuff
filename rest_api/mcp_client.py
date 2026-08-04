@@ -35,7 +35,7 @@ def _parse_tool_result(result):
 
 class MCPBackendClient:
     def __init__(self, server_url=None):
-        self.server_url = server_url or settings.mcp_server_url
+        self.server_url = server_url or settings.resolved_mcp_server_url
 
     async def close(self):
         pass  # nothing held open between calls -- kept for lifespan symmetry
