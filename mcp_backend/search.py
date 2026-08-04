@@ -12,6 +12,16 @@ RRF_NUM_CANDIDATES = 200
 RRF_RANK_WINDOW_SIZE = 50
 RRF_RANK_CONSTANT = 20
 
+# Empirically (see git history), this embedding model's raw cosine similarity
+# for short e-commerce phrases sits in a narrow, mostly content-independent band
+# regardless of true relevance -- "banana" scores *higher* against a kitchen
+# mixer than a genuinely-related-but-untagged toilet query scores against an
+# actual toilet. There is no absolute (or relative) kNN-score threshold that
+# separates real matches from noise in this data. BM25 (literal/fuzzy/slang
+# keyword overlap) is the only reliable signal for "is this relevant at all" --
+# kNN is still used for ranking/confidence among BM25-matched candidates, just
+# not as a gate on its own.
+
 
 def _standard_query(query, category):
     bool_query = {"should": [{"multi_match": {"query": query, "fields": BM25_FIELDS, "type": "best_fields", "fuzziness": "AUTO"}}]}
@@ -98,11 +108,19 @@ def search_products(query, category=None, max_results=20):
         return []
 
     skus = [hit["_source"]["sku"] for hit in hits]
-    bm25_norm = _minmax_normalize(_raw_bm25_scores(es, skus, standard_query))
-    knn_norm = _minmax_normalize(_raw_knn_scores(es, skus, query_vector))
+    raw_bm25 = _raw_bm25_scores(es, skus, standard_query)
+    raw_knn = _raw_knn_scores(es, skus, query_vector)
+
+    relevant_hits = [hit for hit in hits if raw_bm25.get(hit["_source"]["sku"], 0.0) > 0.0]
+    if not relevant_hits:
+        return []
+
+    relevant_skus = [hit["_source"]["sku"] for hit in relevant_hits]
+    bm25_norm = _minmax_normalize({sku: raw_bm25[sku] for sku in relevant_skus if sku in raw_bm25})
+    knn_norm = _minmax_normalize({sku: raw_knn[sku] for sku in relevant_skus if sku in raw_knn})
 
     candidates = []
-    for hit in hits:
+    for hit in relevant_hits:
         source = hit["_source"]
         sku = source["sku"]
         bm25 = bm25_norm.get(sku, 0.0)
