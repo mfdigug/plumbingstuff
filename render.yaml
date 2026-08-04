@@ -11,9 +11,15 @@
 # Cross-service addressing uses `fromService`/`property: hostport`, which Render
 # resolves to that service's actual internal hostname:port (Render appends an
 # auto-generated suffix to service names internally, e.g. `elasticsearch-2j3e`,
-# so this must not be hardcoded). Each service's own `PORT` env var tells Render
-# which port it listens on for that internal address -- both Dockerfiles read
-# $PORT (falling back to a fixed default for local/docker-compose use).
+# so this must not be hardcoded).
+#
+# IMPORTANT: a `PORT` env var alone was NOT enough to make `hostport` report the
+# right port for the Dockerfile-built (`runtime: docker`) private service here --
+# mcp-server's `PORT=8100` env var made the app itself listen on 8100 (confirmed
+# in its logs), but `fromService`/`hostport` still reported Render's apparent
+# default of 10000 for docker-runtime services, breaking rest-api's connection to
+# it. The `port:` field on each service below (separate from the `PORT` env var)
+# is what actually drives `hostport` -- set both, they must match.
 #
 # After first deploy, seed the mock data once via the mcp-server service's Shell
 # tab in the Render dashboard:
@@ -29,6 +35,7 @@ services:
       url: docker.elastic.co/elasticsearch/elasticsearch:9.4.4
     plan: standard
     region: oregon
+    port: 9200
     envVars:
       - key: PORT
         value: "9200"
@@ -51,6 +58,7 @@ services:
     dockerfilePath: ./Dockerfile.mcp
     plan: standard
     region: oregon
+    port: 8100
     envVars:
       - key: PORT
         value: "8100"
@@ -72,6 +80,7 @@ services:
     dockerfilePath: ./Dockerfile.api
     plan: starter
     region: oregon
+    port: 8080
     envVars:
       - key: PORT
         value: "8080"
