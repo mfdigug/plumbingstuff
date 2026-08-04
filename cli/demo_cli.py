@@ -66,7 +66,7 @@ async def run_rest():
 
             try:
                 if cmd.startswith("search "):
-                    resp = await client.post("/search", json={"query": cmd[len("search "):]})
+                    resp = await client.post("/search_catalogue", json={"query": cmd[len("search "):]})
                     resp.raise_for_status()
                     data = resp.json()
                     candidate_skus = [r["sku"] for r in data["results"]]
@@ -74,7 +74,7 @@ async def run_rest():
                 elif cmd.startswith("refine "):
                     filters = _parse_filters(cmd[len("refine "):])
                     resp = await client.post(
-                        "/refine", json={"candidate_skus": candidate_skus, "filters": filters}
+                        "/search_catalogue", json={"candidate_skus": candidate_skus, "filters": filters}
                     )
                     resp.raise_for_status()
                     data = resp.json()

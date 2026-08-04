@@ -53,14 +53,16 @@ class MCPBackendClient:
 
         return _parse_tool_result(result)
 
-    async def search(self, query, category=None, max_results=20):
+    async def search_catalogue(self, query=None, category=None, max_results=20, candidate_skus=None, filters=None):
         return await self._call_tool(
-            "search_products", {"query": query, "category": category, "max_results": max_results}
-        )
-
-    async def refine(self, candidate_skus, filters, query=None):
-        return await self._call_tool(
-            "refine_candidates", {"candidate_skus": candidate_skus, "filters": filters, "query": query}
+            "search_catalogue",
+            {
+                "query": query,
+                "category": category,
+                "max_results": max_results,
+                "candidate_skus": candidate_skus,
+                "filters": filters,
+            },
         )
 
     async def availability(self, sku, store_id=None, state=None, postcode=None):

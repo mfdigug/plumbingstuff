@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class ProductCandidateOut(BaseModel):
@@ -15,20 +15,6 @@ class ProductCandidateOut(BaseModel):
     match_reason: str
 
 
-class SearchRequest(BaseModel):
-    query: str
-    category: Optional[str] = None
-    max_results: int = Field(default=20, ge=1, le=50)
-
-
-class SearchResponse(BaseModel):
-    request_id: str
-    query: str
-    generated_at: str
-    results: list[ProductCandidateOut]
-    result_count: int
-
-
 class RefineFiltersIn(BaseModel):
     brand: Optional[str] = None
     size: Optional[str] = None
@@ -40,10 +26,28 @@ class RefineFiltersIn(BaseModel):
     price_max: Optional[float] = None
 
 
-class RefineRequest(BaseModel):
-    candidate_skus: list[str]
-    filters: RefineFiltersIn = RefineFiltersIn()
+class SearchCatalogueRequest(BaseModel):
+    # To search: set `query`, leave `candidate_skus` unset.
+    # To narrow a previous search: set `candidate_skus` (+ `filters` and/or `query`).
     query: Optional[str] = None
+    category: Optional[str] = None
+    max_results: int = Field(default=20, ge=1, le=50)
+    candidate_skus: Optional[list[str]] = None
+    filters: RefineFiltersIn = RefineFiltersIn()
+
+    @model_validator(mode="after")
+    def _require_query_or_candidates(self):
+        if not self.query and not self.candidate_skus:
+            raise ValueError("either `query` (to search) or `candidate_skus` (to narrow) is required")
+        return self
+
+
+class SearchResponse(BaseModel):
+    request_id: str
+    query: str
+    generated_at: str
+    results: list[ProductCandidateOut]
+    result_count: int
 
 
 class StoreStockOut(BaseModel):
