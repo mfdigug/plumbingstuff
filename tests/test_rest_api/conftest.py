@@ -38,7 +38,7 @@ def any_sku():
 
 @pytest.fixture()
 def require_live_stack():
-    """Request this in tests that exercise search/refine/availability/cart end to
+    """Request this in tests that exercise search/availability/cart end to
     end -- they need both Elasticsearch and a running mcp-server, unlike the
     404/422 error-mapping cases which fail before ever reaching MCP.
     """
