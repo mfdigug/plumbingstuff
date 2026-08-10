@@ -10,29 +10,22 @@ from starlette.responses import PlainTextResponse
 
 from common.settings import settings
 from mcp_backend.availability import check_availability as _check_availability
-from mcp_backend.search import search_items as _search_items
+from mcp_backend.search import product_search as _product_search
 
 mcp = FastMCP("plumbing-mock-backend", host=settings.mcp_server_host, port=settings.mcp_server_port)
 
 
 @mcp.tool()
-def search_catalogue(items: list[str], category: str | None = None, max_results_per_item: int = 4) -> dict:
-    """Search the product catalog. `items` is an array of free-text/slang
-    phrases -- ONE entry per distinct product the customer asked for. A
-    customer asking for "10 toilet lids and 3 taps" becomes
-    `items=["toilet lid", "tap"]`; a single item still goes in as a
-    one-element array, e.g. `items=["mixer tap"]`.
-
-    Returns one result group per input item under `results`, each capped at
-    `max_results_per_item` ranked candidates under `matches` (default 4), with
-    a 0-1 `confidence` score (relative to that item's own query only -- not a
-    calibrated probability) and a `match_reason`. Matches are NOT pruned to
-    only strong ones: the tail may be weak, so use `confidence` and
-    `match_reason` to judge fit rather than assuming the top match is correct.
-    `category` optionally restricts every item's search to one top-level
-    catalog category (e.g. "Taps & Mixers", "Toilets & Cisterns").
+def product_search(query: str) -> dict:
+    """Extract one or more distinct product requests out of a single free-text
+    customer utterance (e.g. "a 90mm stormwater flex and a roll of PTFE tape")
+    and search each. Callers do not pre-split items themselves -- this tool
+    does the splitting -- and the response carries richer per-item extraction
+    metadata (quantity/color/material/semantic search hint) plus both a
+    capped `products` match list and a longer `extendedCandidates` tail per
+    item.
     """
-    return {"results": _search_items(items, category=category, max_results_per_item=max_results_per_item)}
+    return _product_search(query)
 
 
 @mcp.tool()

@@ -13,21 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import httpx  # noqa: E402
 
 REST_BASE_URL = "http://localhost:8080/v1"
-
-
-def print_candidates(matches):
-    if not matches:
-        print("    (no matches)")
-        return
-    for m in matches:
-        print(f"    {m['sku']:16s} conf={m['confidence']:.2f}  ${m['price_aud']:<8}  {m['name']}")
-        print(f"                     -- {m['match_reason']}")
-
-
-def print_search_results(item_groups):
-    for group in item_groups:
-        print(f"  \"{group['query']}\" ({group['match_count']} matches):")
-        print_candidates(group["matches"])
+# Fixed path -- must match the real backend's contract this mock stands in for.
+PRODUCT_SEARCH_URL = "http://localhost:8080/api/v1/product-search"
 
 
 def print_stock(locations):
@@ -36,10 +23,18 @@ def print_stock(locations):
         print(f"  {loc['store_name']:26s} {loc['state']:4s} qty={loc['qty_on_hand']:<3} status={loc['status']}{eta}")
 
 
+def print_product_search_results(data):
+    print(f"  {data['summary']}")
+    for item in data["items"]:
+        print(f"  \"{item['itemName']}\" x{item['quantity']} ({item['status']}):")
+        for p in item["products"]:
+            print(f"    {p['productCode']:16s} conf={p['confidence']:.2f}  {p['description']}")
+
+
 def print_help():
     print(
         "Commands:\n"
-        "  search <item> [| <item> ...]   (one or more items, e.g. search toilet lid | tap)\n"
+        "  psearch <free text query>      (agent-style POST /product-search, e.g. psearch a roll of PTFE tape)\n"
         "  stock <sku> [state]\n"
         "  customer <customer_id>\n"
         "  cart add <customer_id> <sku> [qty]\n"
@@ -47,10 +42,6 @@ def print_help():
         "  cart remove <customer_id> <sku>\n"
         "  quit\n"
     )
-
-
-def _parse_items(text):
-    return [s.strip() for s in text.split("|") if s.strip()]
 
 
 async def run_rest():
@@ -64,11 +55,11 @@ async def run_rest():
                 break
 
             try:
-                if cmd.startswith("search "):
-                    items = _parse_items(cmd[len("search "):])
-                    resp = await client.post("/search_catalogue", json={"items": items})
+                if cmd.startswith("psearch "):
+                    query = cmd[len("psearch "):].strip()
+                    resp = await client.post(PRODUCT_SEARCH_URL, json={"query": query, "region": "AU", "branchId": "1234"})
                     resp.raise_for_status()
-                    print_search_results(resp.json()["results"])
+                    print_product_search_results(resp.json())
                 elif cmd.startswith("stock "):
                     parts = cmd[len("stock "):].split()
                     params = {"sku": parts[0]}
@@ -111,7 +102,12 @@ async def run_rest():
 
 async def run_via_mcp():
     from mcp_backend.availability import check_availability
-    from mcp_backend.search import search_items
+    from mcp_backend.search import product_search
+
+    def _to_camel_response(data):
+        from rest_api.schemas import ProductSearchResponse
+
+        return ProductSearchResponse(request_id="local", intent="product_search", **data).model_dump(by_alias=True)
 
     while True:
         try:
@@ -121,8 +117,8 @@ async def run_via_mcp():
         if not cmd or cmd in ("quit", "exit"):
             break
 
-        if cmd.startswith("search "):
-            print_search_results(search_items(_parse_items(cmd[len("search "):])))
+        if cmd.startswith("psearch "):
+            print_product_search_results(_to_camel_response(product_search(cmd[len("psearch "):].strip())))
         elif cmd.startswith("stock "):
             parts = cmd[len("stock "):].split()
             state = parts[1] if len(parts) > 1 else None

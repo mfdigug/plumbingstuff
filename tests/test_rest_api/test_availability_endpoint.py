@@ -1,11 +1,8 @@
-def test_availability_endpoint_shape(client, require_live_stack):
-    search_resp = client.post("/v1/search_catalogue", json={"items": ["basin tap chrome"]})
-    sku = search_resp.json()["results"][0]["matches"][0]["sku"]
-
-    resp = client.get("/v1/availability", params={"sku": sku})
+def test_availability_endpoint_shape(client, require_live_stack, any_sku):
+    resp = client.get("/v1/availability", params={"sku": any_sku})
     assert resp.status_code == 200
     data = resp.json()
-    assert data["sku"] == sku
+    assert data["sku"] == any_sku
     assert len(data["locations"]) == 15
 
 

@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 from rest_api.errors import register_exception_handlers
 from rest_api.mcp_client import MCPBackendClient
-from rest_api.routers import availability, cart, customers, search_catalogue
+from rest_api.routers import availability, cart, customers, product_search
 
 
 @asynccontextmanager
@@ -17,7 +17,9 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Plumbing Mock Backend API", version="0.1.0", lifespan=lifespan)
 register_exception_handlers(app)
 
-app.include_router(search_catalogue.router, prefix="/v1")
+# Path fixed to match the real backend's contract -- this mock is a
+# placeholder for it (see product_search.router) and will be swapped out.
+app.include_router(product_search.router, prefix="/api/v1")
 app.include_router(availability.router, prefix="/v1")
 app.include_router(customers.router, prefix="/v1")
 app.include_router(cart.router, prefix="/v1")

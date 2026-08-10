@@ -2,9 +2,13 @@
 deliberately relative, uncalibrated confidence score layered on top (real vendor
 relevance scores are essentially never well-calibrated either).
 """
+import hashlib
+import time
+
 from common.settings import settings
 from mcp_backend.embeddings import embed_text
 from mcp_backend.es_client import get_es_client
+from mcp_backend.extraction import extract_items
 
 BM25_FIELDS = ["name^3", "search_terms^2", "description", "brand^2"]
 RRF_K = 50
@@ -141,9 +145,167 @@ def search_products(query, category=None, max_results=20):
     return candidates
 
 
-def search_items(queries, category=None, max_results_per_item=4):
-    groups = []
-    for query in queries:
-        matches = search_products(query, category=category, max_results=max_results_per_item)
-        groups.append({"query": query, "matches": matches, "match_count": len(matches)})
-    return groups
+# --- product_search: shaped to match the agent-facing product-search contract ---
+#
+# The real system this mimics runs two independent retrieval paths per item (a
+# direct Elasticsearch sales-rank query, and its own semantic/hybrid search)
+# and fuses their results (foundBy/foundByBoth/topRankAgreement/fusedScore).
+# This mock has only one retrieval path (search_products above), so every
+# candidate is labeled as found by both sources -- the fusion *fields* are real
+# and present for contract-shape parity, but the fusion *math* behind them is
+# not: there is nothing here to genuinely disagree or overlap.
+MAX_PRODUCT_SEARCH_ITEMS = 10
+DEFAULT_MATCHED_PER_ITEM = 4
+DEFAULT_EXTENDED_PER_ITEM = 8
+MOCK_ASSET_HOST = "https://mock-assets.internal/products"
+
+
+def _elapsed_ms(start):
+    return round((time.perf_counter() - start) * 1000)
+
+
+def _brand_code(brand_name):
+    # The real backend sends an opaque internal vendor code here, not a
+    # display name -- our seed data only has names, so derive a stable
+    # numeric-looking stand-in per brand (deterministic across requests/runs,
+    # unlike Python's randomized str hash()) so the agent config has to deal
+    # with the same "code, not name" shape it'll face against the real system.
+    digest = hashlib.md5(brand_name.encode()).hexdigest()
+    return str(100000 + (int(digest, 16) % 900) * 1000)
+
+
+def _unit_of_measure(name):
+    name_lower = name.lower()
+    if "tape" in name_lower:
+        return "ROLL", None, None
+    if "pipe" in name_lower:
+        return "LEN", "MTR", 6
+    return "EA", None, None
+
+
+def _format_candidate(candidate, item_index, item_name, rank, item_relevance_score, item_relevance_normalized):
+    # This mock has one retrieval path (search_products above), unlike the real
+    # backend's two (a direct ES sales-rank query and its own semantic/hybrid
+    # search) -- alternating which fields a candidate carries mimics that
+    # per-source field variety (see ProductSearchCandidateOut) without faking
+    # a second retrieval path outright. Every candidate is a genuine match
+    # either way; only which metadata is attached differs.
+    confidence = candidate["confidence"]
+    source = "elasticsearch" if rank % 2 == 1 else "mcp"
+    unit_of_measure, unit_of_measure2, pack_ratio = _unit_of_measure(candidate["name"])
+
+    formatted = {
+        "product_code": candidate["sku"],
+        "description": candidate["name"],
+        "search_score": round(confidence, 4),
+        "item_index": item_index,
+        "item_name": item_name,
+        "source": source,
+        "confidence": round(confidence, 4),
+        "image_url": f"{MOCK_ASSET_HOST}/{candidate['sku']}.jpg",
+        "found_by": ["elasticsearch", "mcp"] if rank == 1 else [source],
+        "found_by_both": rank == 1,
+        "top_rank_agreement": False,
+        "fused_score": round((confidence + 1 / rank) / 2, 4),
+        "quantity": 1,
+    }
+    if source == "elasticsearch":
+        formatted.update(
+            brand=_brand_code(candidate["brand"]),
+            es_sales_rank=round(confidence * 2000),
+            es_relevance_score=item_relevance_score,
+            es_relevance_normalized=item_relevance_normalized,
+            es_query_strategy="enriched-query",
+            source_rank=rank,
+            unit_of_measure=unit_of_measure,
+            unit_of_measure2=unit_of_measure2,
+            gst_exempt=False,
+            pack_ratio=pack_ratio,
+        )
+    else:
+        formatted.update(country="AU", unit_of_measure=unit_of_measure, unit_of_measure2=unit_of_measure2, gst_exempt=False, pack_ratio=pack_ratio)
+    return formatted
+
+
+def _build_item_result(item, matched_per_item, extended_per_item):
+    query = item["semantic_search_hint"] or item["item_name"]
+    candidates = search_products(query, max_results=matched_per_item + extended_per_item)
+
+    top_confidence = candidates[0]["confidence"] if candidates else 0.0
+    item_relevance_score = round(top_confidence * 20, 4)
+    item_relevance_normalized = round(top_confidence, 4)
+
+    formatted = [
+        _format_candidate(c, item["item_index"], item["item_name"], rank, item_relevance_score, item_relevance_normalized)
+        for rank, c in enumerate(candidates, start=1)
+    ]
+    for entry in formatted:
+        entry["quantity"] = item["quantity"]
+
+    matched = formatted[:matched_per_item]
+    extended = formatted[matched_per_item : matched_per_item + extended_per_item]
+    # Extended candidates are unenriched tail hits -- no fusion verdict,
+    # order-quantity, or brand lookup was computed for them, so those fields
+    # are dropped rather than faked. (Unlike brand, the other per-source
+    # fields -- es_*/country/etc -- do still apply to the tail.)
+    extended = [
+        {k: v for k, v in entry.items() if k not in ("found_by", "found_by_both", "top_rank_agreement", "fused_score", "quantity", "brand")}
+        for entry in extended
+    ]
+
+    return {
+        "item_index": item["item_index"],
+        "item_name": item["item_name"],
+        "spoken_text": item["source_spans"],
+        "quantity": item["quantity"],
+        "status": "matched" if matched else "no_match",
+        "products": matched,
+        "extended_candidates": extended,
+    }
+
+
+def product_search(query, matched_per_item=DEFAULT_MATCHED_PER_ITEM, extended_per_item=DEFAULT_EXTENDED_PER_ITEM):
+    """Extract one or more distinct product requests out of a free-text query
+    and search each, returning the agent-facing shape: per-item extraction
+    metadata, matched + extended candidates, a flattened top-level product
+    list, and a human-readable summary.
+    """
+    t0 = time.perf_counter()
+    extracted = extract_items(query)
+    truncated_items = 0
+    if len(extracted) > MAX_PRODUCT_SEARCH_ITEMS:
+        truncated_items = len(extracted) - MAX_PRODUCT_SEARCH_ITEMS
+        extracted = extracted[:MAX_PRODUCT_SEARCH_ITEMS]
+    extraction_ms = _elapsed_ms(t0)
+
+    t1 = time.perf_counter()
+    items = [_build_item_result(item, matched_per_item, extended_per_item) for item in extracted]
+    search_ms = _elapsed_ms(t1)
+
+    t2 = time.perf_counter()
+    products = [product for item in items for product in item["products"]]
+    total = len(products)
+    summary = (
+        f"{total} eligible product option{'s' if total != 1 else ''} shown below in ranked order."
+        if total
+        else "No eligible product options were found for this query."
+    )
+    rank_ms = _elapsed_ms(t2)
+
+    return {
+        "extraction": {
+            "intent": "product_search",
+            "items": extracted,
+            "search_hint": "mcp_preferred",
+        },
+        "items": items,
+        "products": products,
+        "summary": summary,
+        "truncated_items": truncated_items,
+        "timings": {
+            "extraction_ms": extraction_ms,
+            "search_ms": search_ms,
+            "rank_ms": rank_ms,
+            "total_ms": extraction_ms + search_ms + rank_ms,
+        },
+    }

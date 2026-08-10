@@ -17,20 +17,18 @@ from common.settings import settings
 from rest_api.errors import MCPToolError, MCPUnavailableError
 
 
-def _parse_tool_result(result):
+def _parse_tool_payload(result):
     if result.isError:
         text = "".join(block.text for block in result.content if getattr(block, "type", None) == "text")
         raise MCPToolError(text or "MCP tool call failed")
 
     if getattr(result, "structuredContent", None) is not None:
-        payload = result.structuredContent
-    else:
-        text_block = next((b for b in result.content if getattr(b, "type", None) == "text"), None)
-        if text_block is None:
-            raise MCPToolError("MCP tool returned no content")
-        payload = json.loads(text_block.text)
+        return result.structuredContent
 
-    return payload.get("results", [])
+    text_block = next((b for b in result.content if getattr(b, "type", None) == "text"), None)
+    if text_block is None:
+        raise MCPToolError("MCP tool returned no content")
+    return json.loads(text_block.text)
 
 
 class MCPBackendClient:
@@ -40,7 +38,7 @@ class MCPBackendClient:
     async def close(self):
         pass  # nothing held open between calls -- kept for lifespan symmetry
 
-    async def _call_tool(self, name, arguments):
+    async def _call_tool_raw(self, name, arguments):
         try:
             async with streamable_http_client(self.server_url) as (read, write, _):
                 async with ClientSession(read, write) as session:
@@ -51,15 +49,16 @@ class MCPBackendClient:
         except Exception as exc:
             raise MCPUnavailableError(str(exc)) from exc
 
-        return _parse_tool_result(result)
+        return _parse_tool_payload(result)
 
-    async def search_catalogue(self, items, category=None, max_results_per_item=4):
-        return await self._call_tool(
-            "search_catalogue",
-            {"items": items, "category": category, "max_results_per_item": max_results_per_item},
-        )
+    async def _call_tool(self, name, arguments):
+        payload = await self._call_tool_raw(name, arguments)
+        return payload.get("results", [])
 
     async def availability(self, sku, store_id=None, state=None, postcode=None):
         return await self._call_tool(
             "check_availability", {"sku": sku, "store_id": store_id, "state": state, "postcode": postcode}
         )
+
+    async def product_search(self, query):
+        return await self._call_tool_raw("product_search", {"query": query})
