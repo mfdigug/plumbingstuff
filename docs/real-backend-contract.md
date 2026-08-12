@@ -150,6 +150,34 @@ access lands, delete `_confidence_level`/`_rationale`/`_family_name` and the
 status-derivation logic in `_build_item_result` wholesale — they exist only so
 agent/bridging-phrase work has real fields to build against in the meantime.
 
+## Search-quality fixes — 2026-08-12
+
+Found during manual test-list verification, both fixed:
+
+- **Filler words caused confidently-wrong matches.** Extraction only strips a
+  fixed set of preambles ("I need", "can I get", ...); anything else stays in
+  the query verbatim. ES's fuzzy matching (needed for real typos/slang) let
+  ordinary filler words fuzzy-collide with real trade terms purely by
+  accident — `"any"` ~ `"and"`, `"bag"` ~ `"bar"` — and since that was
+  sometimes the *only* literal hit in the candidate set, min-max normalization
+  scored it as maximally confident. Fixed with a custom `stop` token filter
+  (`customer_filler_words` in `mappings/products_mapping.json`'s `trade_text`
+  analyzer) covering common spoken filler — not a generic English stopword
+  list, a hand-picked one, extend it as new collisions turn up. ES's built-in
+  `stop` filter alone wasn't enough; it's only the minimal 33-word Lucene
+  list and doesn't cover "any"/"got"/"need"/"bag" etc.
+- **No signal for "we don't stock that brand."** Shop-talk notes explicitly
+  call out brands this store doesn't carry (Chem Press, Jaeger). Previously
+  the mock had no concept of this at all — it silently substituted a
+  different brand's product at whatever confidence that substitute happened
+  to score. Added `data/seed/unstocked_brands.yaml` (loaded by
+  `mcp_backend/extraction.py`, checked in `mcp_backend/search.py`); naming an
+  unstocked brand now always forces `status: "needs_checking"` and rewrites
+  the top product's `rationale` to say so explicitly.
+
+Both required a full ES reindex (`build_es_indices.py` + `load_es_data.py`,
+mapping-only change, no catalog/embedding regen needed).
+
 ## Auth, errors, rate limits, telemetry (context, not yet relevant to our mock)
 
 - **Auth**: 4 credential channels gated by route group — `/api/threads`,
