@@ -1,43 +1,174 @@
-# Real-feeling AU trade brand names used purely as flavor text for this internal,
-# non-published mock dev tool. tier affects price multiplier in generate_mock_catalog.py.
+# Real AU trade brand names used as flavor text for this internal, non-published
+# mock dev tool. `tier` affects price multiplier in generate_mock_catalog.py.
+#
+# `categories` (optional) restricts which top-level category keys (from
+# categories.yaml) a brand can be picked for -- e.g. Auspex only ever shows up on
+# Pipes & Fittings, never on a Vanity Unit. Brands with no `categories` key are
+# eligible everywhere (kept broad on purpose for the general bathroom-fixture
+# brands the source material didn't specifically call out).
+#
+# `subcategories` (optional, finer-grained) further restricts *within* an
+# eligible category -- needed because "Pipes & Fittings" itself spans several
+# real, brand-siloed fitting families (PEX vs. compression vs. press vs.
+# PVC/DWV vs. PE electrofusion). Without it a PEX-only brand like Foodpress
+# could get randomly assigned to a PEX push-fit fitting, which never happens
+# in the real trade (Foodpress is a copper press-fitting brand only).
 brands:
-  - name: Caroma
+  # PEX push-fit systems -- from the "Piping Systems Fundamentals" mnemonic
+  # sheet (au/du/ev/re/sh) and the invoices/Reece search.
+  - name: Auspex
+    tier: mid
+    categories: [pipes_fittings, tools]
+    subcategories: [pex_pipe, pex_fitting, pex_lugged_elbow]
+  - name: Duopex
+    tier: mid
+    categories: [pipes_fittings]
+    subcategories: [pex_pipe, pex_fitting, pex_lugged_elbow]
+  - name: Evopex
+    tier: mid
+    categories: [pipes_fittings]
+    subcategories: [pex_pipe, pex_fitting, pex_lugged_elbow]
+  - name: Rehau
     tier: premium
-  - name: Methven
-    tier: premium
-  - name: Rheem
-    tier: premium
-  - name: Rinnai
-    tier: premium
-  - name: Galvin Engineering
-    tier: premium
-  - name: Dorf
+    categories: [pipes_fittings]
+    subcategories: [pex_pipe, pex_fitting, pex_lugged_elbow]
+  - name: Sharkbite
     tier: mid
-  - name: Clark
+    categories: [pipes_fittings]
+    subcategories: [pex_pipe, pex_fitting, pex_lugged_elbow, pe_electrofusion_fitting]
+
+  # Copper compression / press fittings -- from the invoices (Ardent comp
+  # elbows) and shop-talk notes (B Press/Conex, Foodpress = "popper press").
+  - name: Bpress
     tier: mid
-  - name: Everhard
-    tier: mid
-  - name: Fienza
-    tier: mid
-  - name: Dux
-    tier: mid
-  - name: Vulcan
-    tier: mid
-  - name: Aquamax
-    tier: mid
-  - name: Zip
-    tier: mid
-  - name: Enware
-    tier: mid
-  - name: Milli
-    tier: mid
-  - name: Meir
-    tier: premium
-  - name: Streamline
+    categories: [pipes_fittings]
+    subcategories: [press_fitting]
+  - name: Ardent
     tier: value
+    categories: [pipes_fittings]
+    subcategories: [compression_fitting, fcu]
+  - name: Foodpress
+    tier: value
+    categories: [pipes_fittings]
+    subcategories: [press_fitting]
+
+  # PE electrofusion ("G-type") fittings -- from the shop-talk notes on
+  # G-fittings/couplings.
+  - name: R-Titan
+    tier: mid
+    categories: [pipes_fittings]
+    subcategories: [pe_electrofusion_fitting]
+
+  # General PVC/poly pipe & drainage -- real generic AU trade brands, kept off
+  # the PEX/press-fitting families they don't make.
   - name: Philmac
     tier: mid
+    categories: [valves, pipes_fittings]
+    subcategories: [pipe_reducer, saddle, pvc_pressure_pipe, pvc_bend]
   - name: Iplex
     tier: value
+    categories: [pipes_fittings, drainage]
+    subcategories:
+      [dwv_bend, dwv_socket_bend, dwv_coupling, pvc_ptrap, pvc_strap, bottle_trap,
+       trap_extension, flexy_flange, slab_repair_fitting, pvc_pressure_pipe, pvc_bend,
+       saddle, pipe_reducer, floor_waste, grate, stormwater_pit]
   - name: Vinidex
     tier: value
+    categories: [pipes_fittings, drainage]
+    subcategories:
+      [dwv_bend, dwv_socket_bend, dwv_coupling, pvc_ptrap, pvc_strap, bottle_trap,
+       trap_extension, flexy_flange, slab_repair_fitting, pvc_pressure_pipe, pvc_bend,
+       saddle, pipe_reducer, floor_waste, grate, stormwater_pit]
+
+  # General hardware / tapware-adjacent -- from the invoices (Dura Bib Hose, Dura
+  # Std Mini Stop, Dura P-Trap, cover plates, Arco Combi Valve).
+  - name: Dura
+    tier: mid
+    categories: [taps_mixers, general_hardware, pipes_fittings, valves]
+  - name: Arco
+    tier: mid
+    categories: [valves, taps_mixers]
+  - name: Performa
+    tier: mid
+    categories: [taps_mixers]
+
+  # Sealants / adhesives / insulation -- from the invoices (Atomik solvent cement,
+  # priming fluid, K&B neutral silicone; Solar pipe insulation).
+  - name: Atomik
+    tier: value
+    categories: [sealants_adhesives]
+  - name: Solar
+    tier: value
+    categories: [insulation]
+
+  # Tools -- Rothenberger jaw/ratchet sets from the Reece search.
+  - name: Rothenberger
+    tier: premium
+    categories: [tools]
+
+  # Roofing -- "speed deck" is the generic trade term across all three of these
+  # manufacturers' roof clips.
+  - name: BlueScope
+    tier: mid
+    categories: [roofing_guttering]
+  - name: Stramit
+    tier: mid
+    categories: [roofing_guttering]
+  - name: Apex
+    tier: value
+    categories: [roofing_guttering]
+
+  # Bathroom fixtures / hot water -- pre-existing, real AU brands. Kept broad
+  # (no `categories` restriction beyond their natural fit) since the source
+  # material didn't touch these product families, but they're genuine brands.
+  - name: Caroma
+    tier: premium
+    categories: [toilets_cisterns, taps_mixers, showers, basins_vanities, bathroom_accessories, drainage, pipes_fittings]
+  - name: Methven
+    tier: premium
+    categories: [taps_mixers, showers]
+  - name: Rheem
+    tier: premium
+    categories: [hot_water]
+  - name: Rinnai
+    tier: premium
+    categories: [hot_water]
+  - name: Galvin Engineering
+    tier: premium
+    categories: [valves, taps_mixers, basins_vanities]
+  - name: Dorf
+    tier: mid
+    categories: [taps_mixers, showers, toilets_cisterns]
+  - name: Clark
+    tier: mid
+    categories: [toilets_cisterns, drainage, basins_vanities]
+  - name: Everhard
+    tier: mid
+    categories: [drainage, basins_vanities, toilets_cisterns]
+  - name: Fienza
+    tier: mid
+    categories: [basins_vanities, taps_mixers]
+  - name: Dux
+    tier: mid
+    categories: [hot_water]
+  - name: Vulcan
+    tier: mid
+    categories: [hot_water]
+  - name: Aquamax
+    tier: mid
+    categories: [hot_water]
+  - name: Zip
+    tier: mid
+    categories: [hot_water, taps_mixers]
+  - name: Enware
+    tier: mid
+    categories: [taps_mixers, valves]
+  - name: Milli
+    tier: mid
+    categories: [taps_mixers, showers]
+  - name: Meir
+    tier: premium
+    categories: [taps_mixers, showers, basins_vanities]
+  - name: Streamline
+    tier: value
+    categories: [bathroom_accessories, basins_vanities]

@@ -1,14 +1,63 @@
 # Drives combinatorial SKU generation in scripts/generate_mock_catalog.py.
-# `weight` sets each category's relative share of the ~500 total SKUs.
+# `weight` sets each category's relative share of the ~500 combinatorial SKUs
+# (data/seed/explicit_products.yaml adds a further ~45 real, hand-authored anchor
+# products on top of this — see that file's header).
 # Each subcategory's `attribute_options` are sampled (not fully cross-producted)
-# to build each SKU's `attributes` block and fill its `name_template`.
+# to build each SKU's `attributes` block and fill its `name_template`. Where a
+# subcategory covers several real fitting shapes (PEX/compression/press/PE
+# fittings, DWV bends) a `fitting_shape`/`angle` attribute is sampled instead of
+# splitting into one subcategory per shape, matching the real trade's own
+# family naming (see the piping-systems mnemonic sheet this was built from).
 
 categories:
   - key: pipes_fittings
     name: "Pipes & Fittings"
-    weight: 130
+    weight: 220
     price_range: [3, 85]
     subcategories:
+      - key: pex_pipe
+        name: "PEX Pipe"
+        name_template: "{brand} Pipe PEX 100 {color} {size} x {length}"
+        attribute_options:
+          size: ["16mm", "20mm", "25mm"]
+          length: ["5mtr", "25mtr", "50mtr"]
+          color: ["Black", "Blue", "Yellow", "Red", "Green"]
+          material: ["PEX"]
+      - key: pex_fitting
+        name: "PEX Push-Fit Fitting"
+        name_template: "{brand} LF {fitting_shape} {size}"
+        attribute_options:
+          size: ["16mm", "20mm", "25mm"]
+          fitting_shape: ["Elbow", "Tee", "Coupling", "Adaptor"]
+          connection_type: ["Push-Fit"]
+          material: ["PEX"]
+      - key: pex_lugged_elbow
+        name: "PEX Lugged Elbow"
+        name_template: "{brand} LF {mount} Lug Elbow {size} ({ext_length} Ext)"
+        attribute_options:
+          size: ["16mm", "20mm"]
+          mount: ["MI", "FI"]
+          ext_length: ["75mm", "88mm", "100mm"]
+      - key: compression_fitting
+        name: "Compression Fitting"
+        name_template: "{brand} LF Comp {fitting_shape} Flared {size}c x {size}c"
+        attribute_options:
+          size: ["15mm", "20mm", "25mm"]
+          fitting_shape: ["Elbow", "Tee"]
+          material: ["Brass"]
+      - key: fcu
+        name: "Female Compression Union"
+        name_template: "{brand} FCU {size} x {size} Brass"
+        attribute_options:
+          size: ["15mm", "20mm"]
+          material: ["Brass"]
+      - key: press_fitting
+        name: "Copper Press Fitting"
+        name_template: "{brand} Copper Press {fitting_shape} {size}"
+        attribute_options:
+          size: ["15mm", "20mm", "25mm"]
+          fitting_shape: ["Elbow", "Tee", "Coupling"]
+          material: ["Copper"]
       - key: copper_elbow
         name: "Copper Elbow"
         name_template: "{brand} Copper Elbow {size}"
@@ -23,6 +72,26 @@ categories:
           size: ["15mm", "20mm", "25mm", "32mm", "40mm"]
           connection_type: ["Compression", "Solder"]
           material: ["Copper"]
+      - key: dwv_bend
+        name: "DWV Bend"
+        name_template: "{brand} DWV Bend {size} x {angle} Deg Plain"
+        attribute_options:
+          size: ["40mm", "50mm", "65mm", "100mm"]
+          angle: ["45", "85", "88"]
+          material: ["PVC"]
+      - key: dwv_socket_bend
+        name: "DWV Socket Bend"
+        name_template: "{brand} DWV IN Socket Bend M&F {size} x {angle} Deg"
+        attribute_options:
+          size: ["40mm", "50mm", "100mm"]
+          angle: ["45", "88"]
+          material: ["PVC"]
+      - key: dwv_coupling
+        name: "DWV Straight Coupling"
+        name_template: "{brand} DWV Straight Coupling (Socket) {size}"
+        attribute_options:
+          size: ["40mm", "50mm", "100mm"]
+          material: ["PVC"]
       - key: pvc_ptrap
         name: "PVC P-Trap"
         name_template: "{brand} PVC P-Trap {size}"
@@ -37,14 +106,69 @@ categories:
           size: ["40mm", "50mm"]
           connection_type: ["Push-Fit"]
           material: ["PVC"]
-      - key: pex_fitting
-        name: "PEX Push-Fit Fitting"
-        name_template: "{brand} PEX Push-Fit {fitting_shape} {size}"
+      - key: bottle_trap
+        name: "Bottle Trap"
+        name_template: "{brand} {size} Bottle Trap — {finish}"
         attribute_options:
-          size: ["16mm", "20mm", "25mm"]
-          fitting_shape: ["Elbow", "Tee", "Coupling"]
-          connection_type: ["Push-Fit"]
-          material: ["PEX"]
+          size: ["32mm", "40mm"]
+          finish: ["Chrome", "White"]
+      - key: trap_extension
+        name: "Adjustable Trap Extension"
+        name_template: "{brand} Adjustable Trap Extension {size}"
+        attribute_options:
+          size: ["40mm", "50mm"]
+      - key: flexy_flange
+        name: "Flexy Flange"
+        name_template: "{brand} Flexy Flange Round {size_range} DWV"
+        attribute_options:
+          size_range: ["40-50mm", "50-65mm"]
+      - key: slab_repair_fitting
+        name: "Slab Repair Fitting"
+        name_template: "{brand} Slab Repair Fitting {size}"
+        attribute_options:
+          size: ["40mm", "50mm", "100mm"]
+          material: ["PVC"]
+      - key: pe_electrofusion_fitting
+        name: "PE Electrofusion Fitting"
+        name_template: "{brand} Max LF Sdr7.4 {fitting_shape} {size}"
+        attribute_options:
+          size: ["16mm", "20mm", "32mm", "50mm", "63mm"]
+          fitting_shape: ["Coup", "Elbow", "Tee"]
+          material: ["PE100"]
+      - key: pvc_pressure_pipe
+        name: "PVC Pressure Pipe"
+        name_template: "{brand} PVC Pressure Pipe {size} — {length}"
+        attribute_options:
+          size: ["50mm", "65mm", "100mm"]
+          length: ["Length (6m)", "Cold Length (5m)"]
+          material: ["PVC"]
+      - key: pvc_bend
+        name: "PVC Bend"
+        name_template: "{brand} PVC Bend {size} x {angle} Degree"
+        attribute_options:
+          size: ["65mm", "100mm"]
+          angle: ["45", "65"]
+          material: ["PVC"]
+      - key: saddle
+        name: "Pipe Saddle"
+        name_template: "{brand} {material} Saddle {size}"
+        attribute_options:
+          size: ["15mm", "20mm", "100mm"]
+          material: ["Copper", "PVC"]
+      - key: pipe_reducer
+        name: "Pipe Reducer"
+        name_template: "{brand} Reducer {size} x {size2}"
+        attribute_options:
+          size: ["100mm", "65mm", "50mm"]
+          size2: ["50mm", "40mm", "25mm"]
+          material: ["PVC"]
+      - key: threaded_rod
+        name: "Threaded Rod"
+        name_template: "{brand} All Thread Rod {size} x {length}"
+        attribute_options:
+          size: ["10mm", "12mm", "15mm"]
+          length: ["1m", "3m"]
+          material: ["Zinc Plated Steel"]
 
   - key: taps_mixers
     name: "Taps & Mixers"
@@ -79,11 +203,35 @@ categories:
           finish: ["Chrome", "Matte Black"]
           connection_type: ["Wall-Mounted"]
           series: ["Titan", "Classic", "Federation"]
+      - key: hose_bib
+        name: "Hose Bib"
+        name_template: "{brand} Bib Hose {gender} RB T/H (O-R) {size} LF"
+        attribute_options:
+          size: ["15mm", "20mm"]
+          gender: ["FI", "MI"]
+          material: ["Brass"]
+      - key: mixer_cartridge
+        name: "Mixer Cartridge"
+        name_template: "{brand} Mixer Lever Cartridge Universal {size}"
+        attribute_options:
+          size: ["25mm", "35mm", "40mm"]
+      - key: mixer_ext_hose
+        name: "Mixer Tap Extension Hose"
+        name_template: "{brand} Mixer Tap Ext Hose {length} SS LF"
+        attribute_options:
+          length: ["250mm", "450mm"]
+          material: ["Stainless Steel"]
+      - key: combi_valve
+        name: "Combi Valve"
+        name_template: "{brand} Combi Valve LF {size}"
+        attribute_options:
+          size: ["15mm", "20mm"]
+          material: ["Brass"]
 
   - key: toilets_cisterns
     name: "Toilets & Cisterns"
-    weight: 55
-    price_range: [180, 950]
+    weight: 75
+    price_range: [12, 950]
     subcategories:
       - key: wall_faced_suite
         name: "Wall-Faced Toilet Suite"
@@ -116,6 +264,44 @@ categories:
           finish: ["White"]
           connection_type: ["Concealed", "Exposed"]
           series: ["Invisi", "Slimline"]
+      - key: toilet_seat
+        name: "Toilet Seat"
+        name_template: "{brand} {series} Toilet Seat — {hinge_type}"
+        attribute_options:
+          series: ["Profile", "Caravelle", "Titan", "Nova"]
+          hinge_type: ["Soft Close", "Standard", "Quick Release"]
+      - key: inlet_valve
+        name: "Toilet Inlet Valve"
+        name_template: "{brand} {series} Inlet Valve — {entry_type}"
+        attribute_options:
+          series: ["Quietflow", "I-Valve"]
+          entry_type: ["Bottom Entry", "Side Entry Unifill"]
+      - key: outlet_valve
+        name: "Toilet Outlet Valve"
+        name_template: "{brand} Outlet Valve {flush_rating} Replacement Pack"
+        attribute_options:
+          flush_rating: ["4.5/3L", "6/3L"]
+      - key: seal_kit
+        name: "Toilet Seal Kit"
+        name_template: "{brand} {seal_type} Seal Kit"
+        attribute_options:
+          seal_type: ["Cube 0.8L", "Uniconnector", "Kee Seal 40mm", "Kee Seal 50mm", "H2Zero Service"]
+      - key: uniconnector
+        name: "Toilet Pan Connector"
+        name_template: "{brand} {series} Uniconnector — {length}"
+        attribute_options:
+          series: ["Lavatory Extended", "Uni-Orbital"]
+          length: ["Long", "Short"]
+      - key: smart_pan
+        name: "Smart Pan"
+        name_template: "{brand} Smart Pan — {suite_type}"
+        attribute_options:
+          suite_type: ["Toilet", "Shower"]
+      - key: urinal_part
+        name: "Urinal Part"
+        name_template: "{brand} Urinal {part_type}"
+        attribute_options:
+          part_type: ["Electronic Flush Valve", "Solenoid Valve", "Seal Kit"]
 
   - key: hot_water
     name: "Hot Water Systems"
@@ -177,6 +363,12 @@ categories:
           size: ["20mm", "25mm"]
           pressure_rating: ["350kPa", "500kPa"]
           material: ["Brass"]
+      - key: mini_stop_valve
+        name: "Mini Stop Valve"
+        name_template: "{brand} Std Mini Stop {finish} {size} LF"
+        attribute_options:
+          size: ["15mm", "20mm"]
+          finish: ["Chrome Plated"]
 
   - key: drainage
     name: "Drainage"
@@ -201,6 +393,22 @@ categories:
         attribute_options:
           size: ["300mm", "450mm"]
           material: ["PVC"]
+      - key: basket_waste
+        name: "Basket Waste"
+        name_template: "{brand} {size} Basket Waste — {finish}"
+        attribute_options:
+          size: ["90x50mm", "100mm"]
+          finish: ["Stainless Steel", "Chrome"]
+      - key: pop_up_waste
+        name: "Pop Up Waste"
+        name_template: "{brand} {finish} Pop Up Waste"
+        attribute_options:
+          finish: ["Chrome", "White"]
+      - key: water_filter_cartridge
+        name: "Water Filter Cartridge"
+        name_template: "{brand} {filter_type} Filter Cartridge"
+        attribute_options:
+          filter_type: ["Sediment", "Carbon"]
 
   - key: basins_vanities
     name: "Basins & Vanities"
@@ -273,7 +481,7 @@ categories:
 
   - key: sealants_adhesives
     name: "Sealants & Adhesives"
-    weight: 20
+    weight: 30
     price_range: [6, 45]
     subcategories:
       - key: silicone_sealant
@@ -282,15 +490,114 @@ categories:
         attribute_options:
           size: ["300g", "450g"]
           color: ["White", "Clear", "Grey"]
+      - key: neutral_silicone
+        name: "Neutral Cure Silicone"
+        name_template: "{brand} K&B Neutral Silicone {color} {size}"
+        attribute_options:
+          size: ["300g"]
+          color: ["Clear", "White", "Monument"]
       - key: ptfe_tape
         name: "PTFE Thread Tape"
         name_template: "{brand} PTFE Thread Tape"
         attribute_options: {}
       - key: pipe_adhesive
-        name: "PVC Pipe Adhesive"
-        name_template: "{brand} PVC Pipe Adhesive {size}"
+        name: "PVC Solvent Cement"
+        name_template: "{brand} Solvent Cement Type N {color} {size}"
         attribute_options:
           size: ["125mL", "500mL"]
+          color: ["Clear", "Blue", "Red"]
+      - key: priming_fluid
+        name: "Priming Fluid"
+        name_template: "{brand} Priming Fluid {color} {size}"
+        attribute_options:
+          size: ["250mL", "500mL"]
+          color: ["Clear", "Red"]
+      - key: pressure_glue
+        name: "Pressure Glue"
+        name_template: "{brand} Pressure Glue — {color}"
+        attribute_options:
+          color: ["Green", "Clear"]
+
+  - key: insulation
+    name: "Insulation"
+    weight: 20
+    price_range: [5, 60]
+    subcategories:
+      - key: pipe_insulation
+        name: "Pipe Insulation"
+        name_template: "{brand} Pipe Insulation {size} Wall {length}"
+        attribute_options:
+          size: ["13mm x 13mm", "19mm x 13mm", "25mm x 13mm"]
+          length: ["1M", "2M"]
+      - key: pipe_lagging
+        name: "Pipe Lagging"
+        name_template: "{brand} {series} Pipe Lagging {size}"
+        attribute_options:
+          series: ["Armor Flex", "K-Flex"]
+          size: ["15mm", "20mm", "25mm"]
+
+  - key: roofing_guttering
+    name: "Roofing & Guttering"
+    weight: 20
+    price_range: [8, 120]
+    subcategories:
+      - key: roof_clip
+        name: "Roof Clip"
+        name_template: "{brand} Roof Clip — {profile}"
+        attribute_options:
+          profile: ["Speed Deck", "Trimdek", "Custom Orb"]
+      - key: quad_gutter
+        name: "Quad Gutter"
+        name_template: "{brand} Quad Gutter {length} — {finish}"
+        attribute_options:
+          length: ["3m", "6m"]
+          finish: ["Colorbond", "Zincalume"]
+      - key: flashing
+        name: "Roof Flashing"
+        name_template: "{brand} Roof Flashing — {profile}"
+        attribute_options:
+          profile: ["Apron", "Barge", "Ridge"]
+
+  - key: general_hardware
+    name: "General Hardware"
+    weight: 30
+    price_range: [2, 40]
+    subcategories:
+      - key: gal_mal_plug
+        name: "Galvanised Malleable Plug"
+        name_template: "{brand} Gal Mal Plug Hollow {size}"
+        attribute_options:
+          size: ["15mm", "20mm", "25mm"]
+          material: ["Galvanised Malleable Iron"]
+      - key: standoff_bracket
+        name: "Standoff Bracket"
+        name_template: "{brand} Standoff Bracket {size}"
+        attribute_options:
+          size: ["15mm", "20mm"]
+      - key: brass_flanged_back_nut
+        name: "Brass Flanged Back Nut"
+        name_template: "{brand} Brass Flanged Back Nut {size}"
+        attribute_options:
+          size: ["15mm", "20mm"]
+          material: ["Brass"]
+      - key: cover_plate
+        name: "Cover Plate"
+        name_template: "{brand} Cover Plate {size} Bsp x {rise} {finish}"
+        attribute_options:
+          size: ["15mm", "20mm"]
+          rise: ["Flat", "10mm Rise"]
+          finish: ["S/S"]
+      - key: green_plug
+        name: "Wall Plug"
+        name_template: "{brand} Green Wall Plug {size}"
+        attribute_options:
+          size: ["6mm", "8mm", "10mm"]
+      - key: copper_saddle
+        name: "Copper Saddle"
+        name_template: "{brand} Copper Saddle {size}"
+        attribute_options:
+          size: ["15mm", "20mm"]
+          material: ["Copper"]
 
   - key: tools
     name: "Tools"
@@ -311,3 +618,13 @@ categories:
         name_template: "{brand} {material} Pipe Cutter"
         attribute_options:
           material: ["Copper", "PVC"]
+      - key: flaring_tool
+        name: "Flaring Tool"
+        name_template: "{brand} Flaring Tool Kit — {size_range}"
+        attribute_options:
+          size_range: ["6mm-22mm", "1/4in-3/4in"]
+      - key: ratchet_tool
+        name: "Ratchet/Crimp Tool"
+        name_template: "{brand} Ratchet Tool — {size_range}"
+        attribute_options:
+          size_range: ["16mm", "16mm-25mm", "16mm-32mm"]

@@ -1,0 +1,420 @@
+# Real, hand-transcribed anchor products -- guaranteed to exist in the generated
+# catalog verbatim (not probabilistic like the combinatorial products in
+# categories.yaml). Source: 3 real invoice photos, both faces of a Caroma genuine
+# spare-parts poster, and a live Reece.com.au "auspex" search (which independently
+# confirmed several invoice SKUs, e.g. 1546523/1546538).
+#
+# A handful of entries (marked below) use an invented-but-realistic code in the
+# same numbering style as the real ones, for terminology called out in the shop-talk
+# notes that wasn't itself on an invoice (all-thread/"wolfrate", "speed deck" roof
+# clips, G-type PE electrofusion fittings).
+#
+# Consumed by scripts/generate_mock_catalog.py, which fills in description/price_aud
+# and applies the normal by_subcategory + brand_aliases slang from slang_terms.yaml
+# on top of any `extra_search_terms` given here.
+#
+# Fields: sku, category_key, subcategory_key (must exist in categories.yaml),
+# brand (must exist in brands.yaml), name, attributes, extra_search_terms (optional).
+
+products:
+  # --- Invoice 1 ---
+  - sku: "15097"
+    category_key: taps_mixers
+    subcategory_key: hose_bib
+    brand: Dura
+    name: "Dura Bib Hose FI RB T/H (O-R) 15mm LF"
+    attributes: {size: "15mm", gender: "FI", material: "Brass"}
+  - sku: "204190"
+    category_key: general_hardware
+    subcategory_key: brass_flanged_back_nut
+    brand: Dura
+    name: "Brass Flanged Back Nut 15mm"
+    attributes: {size: "15mm", material: "Brass"}
+  - sku: "1546523"
+    category_key: pipes_fittings
+    subcategory_key: pex_fitting
+    brand: Auspex
+    name: "Auspex LF Tee 16mm"
+    attributes: {size: "16mm", fitting_shape: "Tee", connection_type: "Push-Fit", material: "PEX"}
+  - sku: "1546555"
+    category_key: pipes_fittings
+    subcategory_key: pex_fitting
+    brand: Auspex
+    name: "Auspex LF Elbow 16mm x 1/2\" MI"
+    attributes: {size: "16mm", fitting_shape: "Elbow", thread_size: "1/2 inch"}
+  - sku: "1546538"
+    category_key: pipes_fittings
+    subcategory_key: pex_lugged_elbow
+    brand: Auspex
+    name: "Auspex LF MI Lug Elbow 16mm (88mm) Ext"
+    attributes: {size: "16mm", mount: "MI", ext_length: "88mm"}
+  - sku: "1546531"
+    category_key: pipes_fittings
+    subcategory_key: pex_lugged_elbow
+    brand: Auspex
+    name: "Auspex LF Lugged Elbow 16mm FI"
+    attributes: {size: "16mm", mount: "FI"}
+  - sku: "1546550"
+    category_key: pipes_fittings
+    subcategory_key: pex_fitting
+    brand: Auspex
+    name: "Auspex LF Polybute Adaptor 16mm x 18mm"
+    attributes: {size: "16mm", fitting_shape: "Adaptor", size2: "18mm"}
+    extra_search_terms: ["polybute adaptor", "butalene adaptor"]
+
+  # --- Invoice 2 ---
+  - sku: "1102615"
+    category_key: general_hardware
+    subcategory_key: gal_mal_plug
+    brand: Dura
+    name: "Gal Mal Plug Hollow 15mm"
+    attributes: {size: "15mm", material: "Galvanised Malleable Iron"}
+  - sku: "35716"
+    category_key: pipes_fittings
+    subcategory_key: pe_electrofusion_fitting
+    brand: Sharkbite
+    name: "Sharkbite Max LF Sdr7.4 Coup 16mm (Wht)"
+    attributes: {size: "16mm", fitting_shape: "Coup", color: "White", material: "PE100"}
+  - sku: "35721"
+    category_key: pipes_fittings
+    subcategory_key: pe_electrofusion_fitting
+    brand: Sharkbite
+    name: "Sharkbite Max LF Sdr7.4 Coup 20mm (White)"
+    attributes: {size: "20mm", fitting_shape: "Coup", color: "White", material: "PE100"}
+  - sku: "9800535"
+    category_key: pipes_fittings
+    subcategory_key: compression_fitting
+    brand: Ardent
+    name: "Ardent LF Comp Elbow Flared 15c x 15c"
+    attributes: {size: "15mm", fitting_shape: "Elbow", material: "Brass"}
+  - sku: "9800536"
+    category_key: pipes_fittings
+    subcategory_key: compression_fitting
+    brand: Ardent
+    name: "Ardent LF Comp Elbow Flared 20c x 20c"
+    attributes: {size: "20mm", fitting_shape: "Elbow", material: "Brass"}
+  - sku: "1909956"
+    category_key: insulation
+    subcategory_key: pipe_insulation
+    brand: Solar
+    name: "Solar Pipe Insulation 13mm x13mm Wall 2M"
+    attributes: {size: "13mm x 13mm", length: "2M"}
+
+  # --- Invoice 3 ---
+  - sku: "1903912"
+    category_key: sealants_adhesives
+    subcategory_key: pipe_adhesive
+    brand: Atomik
+    name: "Atomik Solvent Cement Type N Clear 500ml"
+    attributes: {size: "500mL", color: "Clear"}
+  - sku: "1903904"
+    category_key: sealants_adhesives
+    subcategory_key: priming_fluid
+    brand: Atomik
+    name: "Atomik Priming Fluid Clear 500ml"
+    attributes: {size: "500mL", color: "Clear"}
+  - sku: "1120176"
+    category_key: taps_mixers
+    subcategory_key: combi_valve
+    brand: Arco
+    name: "Arco Combi Valve LF"
+    attributes: {material: "Brass"}
+  - sku: "1903928"
+    category_key: sealants_adhesives
+    subcategory_key: neutral_silicone
+    brand: Atomik
+    name: "Atomik K&B Neutral Silicone Clear 300g"
+    attributes: {size: "300g", color: "Clear"}
+  - sku: "1702030"
+    category_key: general_hardware
+    subcategory_key: cover_plate
+    brand: Dura
+    name: "Cover Plate 15mm Bsp x Flat S/S 50"
+    attributes: {size: "15mm", rise: "Flat", finish: "S/S"}
+  - sku: "1702010"
+    category_key: general_hardware
+    subcategory_key: cover_plate
+    brand: Dura
+    name: "Cover Plate 15mm Bsp x 10mm Rise S/S 50"
+    attributes: {size: "15mm", rise: "10mm Rise", finish: "S/S"}
+  - sku: "15088"
+    category_key: valves
+    subcategory_key: mini_stop_valve
+    brand: Dura
+    name: "Dura Std Mini Stop CP 15mm LF"
+    attributes: {size: "15mm", finish: "Chrome Plated"}
+  - sku: "1403704"
+    category_key: pipes_fittings
+    subcategory_key: dwv_socket_bend
+    brand: Dura
+    name: "DWV IN Socket Bend M&F 40 x 88 Deg"
+    attributes: {size: "40mm", angle: "88", material: "PVC"}
+  - sku: "1403030"
+    category_key: pipes_fittings
+    subcategory_key: dwv_bend
+    brand: Dura
+    name: "DWV Bend 40 x 85 Deg Plain"
+    attributes: {size: "40mm", angle: "85", material: "PVC"}
+  - sku: "1403120"
+    category_key: pipes_fittings
+    subcategory_key: dwv_bend
+    brand: Dura
+    name: "DWV Bend 50 x 85 Deg Plain"
+    attributes: {size: "50mm", angle: "85", material: "PVC"}
+  - sku: "1403810"
+    category_key: pipes_fittings
+    subcategory_key: dwv_coupling
+    brand: Dura
+    name: "DWV Straight Coupling (Socket) 50mm"
+    attributes: {size: "50mm", material: "PVC"}
+  - sku: "9512546"
+    category_key: taps_mixers
+    subcategory_key: mixer_ext_hose
+    brand: Performa
+    name: "Performa Mixer Tap Ext Hose 250 SS LF"
+    attributes: {length: "250mm", material: "Stainless Steel"}
+  - sku: "1702376"
+    category_key: pipes_fittings
+    subcategory_key: flexy_flange
+    brand: Dura
+    name: "Flexy Flange Round 40-50mm DWV (5)"
+    attributes: {size_range: "40-50mm"}
+  - sku: "1909148"
+    category_key: pipes_fittings
+    subcategory_key: pvc_ptrap
+    brand: Dura
+    name: "Dura Standard P Trap 50mm Dbl Nipple"
+    attributes: {size: "50mm", material: "PVC"}
+  - sku: "1909122"
+    category_key: pipes_fittings
+    subcategory_key: trap_extension
+    brand: Dura
+    name: "Dura Adjustable Trap Extension 50mm"
+    attributes: {size: "50mm"}
+
+  # --- Caroma poster (both faces) ---
+  - sku: "104050"
+    category_key: pipes_fittings
+    subcategory_key: trap_extension
+    brand: Caroma
+    name: "Adjustable Cap and Lining 50mm"
+    attributes: {size: "50mm"}
+  - sku: "102111"
+    category_key: pipes_fittings
+    subcategory_key: pvc_ptrap
+    brand: Caroma
+    name: "40mm Combination S&P Trap"
+    attributes: {size: "40mm", material: "PVC"}
+  - sku: "103118"
+    category_key: pipes_fittings
+    subcategory_key: pvc_ptrap
+    brand: Caroma
+    name: "50mm Combination S&P Trap"
+    attributes: {size: "50mm", material: "PVC"}
+  - sku: "103119"
+    category_key: pipes_fittings
+    subcategory_key: pvc_ptrap
+    brand: Caroma
+    name: "50mm Short Inlet Combination S&P Trap"
+    attributes: {size: "50mm", material: "PVC"}
+  - sku: "102112"
+    category_key: pipes_fittings
+    subcategory_key: pvc_ptrap
+    brand: Caroma
+    name: "40mm P Trap"
+    attributes: {size: "40mm", material: "PVC"}
+  - sku: "103121"
+    category_key: pipes_fittings
+    subcategory_key: pvc_ptrap
+    brand: Caroma
+    name: "50mm P Trap"
+    attributes: {size: "50mm", material: "PVC"}
+  - sku: "102115"
+    category_key: pipes_fittings
+    subcategory_key: pvc_ptrap
+    brand: Caroma
+    name: "40mm Lavatory P Trap"
+    attributes: {size: "40mm", material: "PVC"}
+  - sku: "103122"
+    category_key: pipes_fittings
+    subcategory_key: pvc_ptrap
+    brand: Caroma
+    name: "50mm P Trap Short Inlet"
+    attributes: {size: "50mm", material: "PVC"}
+  - sku: "414260"
+    category_key: toilets_cisterns
+    subcategory_key: uniconnector
+    brand: Caroma
+    name: "Lavatory Extended Uniconnector Long"
+    attributes: {series: "Lavatory Extended", length: "Long"}
+  - sku: "416040"
+    category_key: toilets_cisterns
+    subcategory_key: uniconnector
+    brand: Caroma
+    name: "Uni-Orbital Connector Long"
+    attributes: {series: "Uni-Orbital", length: "Long"}
+  - sku: "687295C"
+    category_key: pipes_fittings
+    subcategory_key: bottle_trap
+    brand: Caroma
+    name: "40mm Bottle Trap CH"
+    attributes: {size: "40mm", finish: "Chrome"}
+  - sku: "687290C"
+    category_key: pipes_fittings
+    subcategory_key: bottle_trap
+    brand: Caroma
+    name: "Modina 40mm Bottle Trap"
+    attributes: {size: "40mm", finish: "Chrome"}
+  - sku: "687042"
+    category_key: toilets_cisterns
+    subcategory_key: inlet_valve
+    brand: Caroma
+    name: "Quietflow 2 Bottom I/Valve"
+    attributes: {series: "Quietflow", entry_type: "Bottom Entry"}
+  - sku: "405047"
+    category_key: toilets_cisterns
+    subcategory_key: inlet_valve
+    brand: Caroma
+    name: "I/Valve Side Entry Unifill"
+    attributes: {series: "I-Valve", entry_type: "Side Entry Unifill"}
+  - sku: "237172"
+    category_key: toilets_cisterns
+    subcategory_key: outlet_valve
+    brand: Caroma
+    name: "Outlet Valve 4.5/3L Replacement Pack Invisi2"
+    attributes: {flush_rating: "4.5/3L"}
+  - sku: "760085"
+    category_key: toilets_cisterns
+    subcategory_key: outlet_valve
+    brand: Caroma
+    name: "M5 Quietflow Outlet Valve V2"
+    attributes: {flush_rating: "6/3L"}
+  - sku: "687390"
+    category_key: toilets_cisterns
+    subcategory_key: seal_kit
+    brand: Caroma
+    name: "Cube 0.8L Seal Kit"
+    attributes: {seal_type: "Cube 0.8L"}
+  - sku: "405157"
+    category_key: toilets_cisterns
+    subcategory_key: seal_kit
+    brand: Caroma
+    name: "50mm Rubber Kee Seal Pans"
+    attributes: {seal_type: "Kee Seal 50mm"}
+  - sku: "687334"
+    category_key: toilets_cisterns
+    subcategory_key: seal_kit
+    brand: Caroma
+    name: "H2Zero Service Kit"
+    attributes: {seal_type: "H2Zero Service"}
+  - sku: "678805"
+    category_key: toilets_cisterns
+    subcategory_key: urinal_part
+    brand: Caroma
+    name: "Solenoid Valve Electronic Urinal Flush Valve"
+    attributes: {part_type: "Electronic Flush Valve"}
+  - sku: "300111"
+    category_key: toilets_cisterns
+    subcategory_key: toilet_seat
+    brand: Caroma
+    name: "Seat Buffer PK Nova/Lux/Pro Germgard"
+    attributes: {series: "Nova"}
+  - sku: "2727"
+    category_key: taps_mixers
+    subcategory_key: mixer_cartridge
+    brand: Caroma
+    name: "Mixer Lever Cartridge Universal 35mm"
+    attributes: {size: "35mm"}
+  - sku: "687327C"
+    category_key: drainage
+    subcategory_key: pop_up_waste
+    brand: Caroma
+    name: "Chrome Flush Fitting Waste"
+    attributes: {finish: "Chrome"}
+  - sku: "A0084"
+    category_key: drainage
+    subcategory_key: basket_waste
+    brand: Caroma
+    name: "90x50mm Short Basket Waste"
+    attributes: {size: "90x50mm", finish: "Stainless Steel"}
+
+  # --- Reece.com.au "auspex" search ---
+  - sku: "1537759"
+    category_key: pipes_fittings
+    subcategory_key: pex_pipe
+    brand: Auspex
+    name: "Auspex Pipe PEX 100 16mm x 50mtr"
+    attributes: {size: "16mm", length: "50mtr", material: "PEX"}
+  - sku: "1534107"
+    category_key: tools
+    subcategory_key: ratchet_tool
+    brand: Auspex
+    name: "Auspex Ratchet Tool 16mm"
+    attributes: {size_range: "16mm"}
+  - sku: "1534013"
+    category_key: pipes_fittings
+    subcategory_key: pex_fitting
+    brand: Auspex
+    name: "Auspex P x Male Adaptor 16mm x 1/2\""
+    attributes: {size: "16mm", fitting_shape: "Adaptor"}
+  - sku: "7701238"
+    category_key: tools
+    subcategory_key: ratchet_tool
+    brand: Rothenberger
+    name: "Rothenberger Compact Auspex Jaw Set 16mm - 25mm"
+    attributes: {size_range: "16mm-25mm"}
+  - sku: "1546649"
+    category_key: pipes_fittings
+    subcategory_key: pex_fitting
+    brand: Auspex
+    name: "Auspex Adaptor to SDR9 Pe-X Pipe 16mm"
+    attributes: {size: "16mm", fitting_shape: "Adaptor"}
+  - sku: "1546527"
+    category_key: pipes_fittings
+    subcategory_key: pex_fitting
+    brand: Auspex
+    name: "Auspex Coupling P-P 16mm"
+    attributes: {size: "16mm", fitting_shape: "Coupling"}
+  - sku: "1546521"
+    category_key: pipes_fittings
+    subcategory_key: pex_fitting
+    brand: Auspex
+    name: "Auspex Lead Free Elbow 16mm"
+    attributes: {size: "16mm", fitting_shape: "Elbow"}
+
+  # --- Terminology-driven anchors (invented-but-realistic codes; the note called
+  # these out by name but they weren't on a photographed invoice) ---
+  - sku: "1546800"
+    category_key: pipes_fittings
+    subcategory_key: pipe_reducer
+    brand: Auspex
+    name: "Auspex Reducer 110mm x 50mm"
+    attributes: {size: "110mm", size2: "50mm", material: "PVC"}
+  - sku: "1546900"
+    category_key: pipes_fittings
+    subcategory_key: threaded_rod
+    brand: Dura
+    name: "All Thread Rod 10mm x 1m"
+    attributes: {size: "10mm", length: "1m", material: "Zinc Plated Steel"}
+    extra_search_terms: ["wolfrate", "all thread"]
+  - sku: "1546901"
+    category_key: roofing_guttering
+    subcategory_key: roof_clip
+    brand: BlueScope
+    name: "BlueScope Speed Deck Roof Clip"
+    attributes: {profile: "Speed Deck"}
+    extra_search_terms: ["speed deck"]
+  - sku: "1546902"
+    category_key: pipes_fittings
+    subcategory_key: pe_electrofusion_fitting
+    brand: R-Titan
+    name: "R-Titan G-Type PE Elbow 63mm"
+    attributes: {size: "63mm", fitting_shape: "Elbow", material: "PE100"}
+    extra_search_terms: ["g fitting", "g-type fitting"]
+  - sku: "1546903"
+    category_key: pipes_fittings
+    subcategory_key: pe_electrofusion_fitting
+    brand: R-Titan
+    name: "R-Titan G-Type PE Coupling 63mm"
+    attributes: {size: "63mm", fitting_shape: "Coup", material: "PE100"}
+    extra_search_terms: ["g fitting", "g-type fitting"]

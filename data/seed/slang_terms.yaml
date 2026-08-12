@@ -2,63 +2,137 @@
 # Terms are attached probabilistically (not to every SKU — see generator `slang_attach_probability`)
 # so the catalog has genuine, realistic tagging gaps.
 #
-# `ambiguous_pool` terms are shared across categories on purpose, to force real
-# disambiguation scenarios for the refine tool (e.g. "rose" could mean a shower rose,
-# but is deliberately also attached to a red-herring line in bathroom_accessories).
+# Sourced directly from real plumber shop-talk notes and the "Piping Systems
+# Fundamentals" mnemonic/terminology sheet (straight coupling = connector = socket
+# = coupler; male/female elbow = mi/fi elbow; lugged elbow = wall plate elbow; etc).
+#
+# `ambiguous_pool` terms are shared across subcategories on purpose, to force real
+# disambiguation (e.g. "elbow" alone is genuinely ambiguous between a copper, PEX,
+# compression, or press elbow until the customer gives a size/material).
+#
+# `brand_aliases` is a second, brand-level mechanism: some slang is a mishearing or
+# renaming of a *brand*, not a product type, and applies across whatever that brand
+# makes (e.g. "Ozpex" for Auspex, "York flex" for Sharkbite/Sharkflex).
 
 by_subcategory:
+  # Pipes & Fittings
+  pex_pipe: ["pex pipe", "poly pipe"]
+  pex_fitting: ["push-fit fitting", "speedfit", "mi", "fi adaptor", "bend", "cap", "stop end", "butalene adaptor", "polybute adaptor"]
+  pex_lugged_elbow: ["lugged elbow", "wall plate elbow", "flanged elbow", "15bp", "19bp"]
+  compression_fitting: ["comp fitting", "compression elbow", "flared fitting"]
+  fcu: ["fcu", "female compression union"]
+  press_fitting: ["press fitting", "b press", "conex fitting"]
   copper_elbow: ["elbow fitting", "90 elbow", "copper bend"]
-  copper_coupling: ["coupling", "copper joiner"]
+  copper_coupling: ["copper joiner"]
+  dwv_bend: ["dwv bend", "waste bend"]
+  dwv_socket_bend: ["socket bend"]
+  dwv_coupling: ["dwv joiner", "straight coupling"]
   pvc_ptrap: ["p-trap", "ptrap", "waste trap"]
   pvc_strap: ["s-trap", "strap"]
-  pex_fitting: ["pex fitting", "push-fit fitting", "speedfit"]
+  bottle_trap: ["bottle trap"]
+  trap_extension: ["trap extension", "adjustable trap"]
+  flexy_flange: ["flexy flange", "flange"]
+  slab_repair_fitting: ["slab repair", "slab fitting", "pot repair"]
+  pe_electrofusion_fitting: ["g fitting", "g-type fitting", "electrofusion fitting"]
+  pvc_pressure_pipe: ["pressure pipe", "garabits", "hdpe pipe"]
+  pvc_bend: ["pvc bend"]
+  saddle: ["pipe saddle"]
+  pipe_reducer: ["size by size"]
+  threaded_rod: ["all thread", "wolfrate", "threaded rod"]
 
+  # Taps & Mixers
   basin_mixer: ["basin tap", "vanity mixer", "hand basin mixer"]
   kitchen_mixer: ["sink mixer", "kitchen tap", "sink tap"]
   bath_mixer: ["bath tap", "bath filler"]
   wall_tap: ["wall taps", "garden tap set", "hose taps"]
+  hose_bib: ["hose bib", "iron hose bib", "bib tap"]
+  mixer_cartridge: ["mixer cartridge", "tap cartridge"]
+  mixer_ext_hose: ["tap ext hose", "flexi hose"]
+  combi_valve: ["combi valve"]
 
+  # Toilets & Cisterns
   wall_faced_suite: ["loo", "dunny", "throne", "toilet suite", "wc", "wall faced toilet"]
   back_to_wall_suite: ["loo", "dunny", "toilet suite", "btw toilet"]
   close_coupled_suite: ["loo", "dunny", "toilet suite", "close coupled toilet"]
   cistern: ["toilet tank", "flush tank", "cistern unit"]
+  toilet_seat: ["toilet seat", "loo seat"]
+  inlet_valve: ["inlet valve", "i-valve", "float valve"]
+  outlet_valve: ["outlet valve", "flush valve"]
+  seal_kit: ["seal kit", "seal pans"]
+  uniconnector: ["uniconnector", "pan connector"]
+  smart_pan: ["smart pan"]
+  urinal_part: ["urinal part"]
 
+  # Hot Water
   electric_storage: ["hot water unit", "hws", "storage heater", "electric hot water tank"]
   gas_storage: ["hot water unit", "hws", "gas hot water tank"]
   continuous_flow_gas: ["instant hot water", "continuous flow unit", "gas instantaneous"]
   heat_pump: ["heat pump hws", "heat pump hot water unit"]
 
+  # Valves
   ball_valve: ["stopcock", "iso valve", "shut-off valve", "ball cock"]
   gate_valve: ["stopcock", "gate cock"]
   isolation_valve: ["iso valve", "stop valve"]
   pressure_limiting_valve: ["plv", "pressure valve", "pressure reducer"]
+  mini_stop_valve: ["mini stop", "stop tap"]
 
+  # Drainage
   floor_waste: ["floor drain", "shower waste"]
   grate: ["drain cover", "drain grate"]
   stormwater_pit: ["drain pit", "stormwater box"]
+  basket_waste: ["basket waste", "sink strainer"]
+  pop_up_waste: ["pop up waste", "flush fitting waste"]
+  water_filter_cartridge: ["water filter", "filter cartridge"]
 
+  # Basins & Vanities
   wall_hung_basin: ["hand basin", "wall basin", "sink bowl"]
   vanity_unit: ["vanity", "bathroom cabinet", "vanity cabinet"]
   countertop_basin: ["counter basin", "bowl basin"]
 
+  # Showers
   shower_mixer: ["shower tap", "shower control"]
-  shower_rose: ["rose", "shower head", "showerhead"]
+  shower_rose: ["shower head", "showerhead"]
   shower_rail: ["rail shower", "sliding rail"]
 
+  # Bathroom Accessories
   towel_rail: ["towel bar", "towel warmer"]
   toilet_roll_holder: ["loo roll holder", "tp holder"]
   soap_dispenser: ["soap pump"]
 
+  # Sealants & Adhesives
   silicone_sealant: ["silicone", "bathroom sealant", "gap filler"]
+  neutral_silicone: ["neutral cure silicone", "k&b silicone"]
   ptfe_tape: ["thread tape", "plumbers tape", "teflon tape"]
   pipe_adhesive: ["pvc glue", "solvent cement"]
+  priming_fluid: ["primer", "priming fluid"]
+  pressure_glue: ["pressure glue", "green glue", "clear glue"]
 
+  # Insulation
+  pipe_insulation: ["pipe insulation"]
+  pipe_lagging: ["k-flex", "armor flex", "lagging"]
+
+  # Roofing & Guttering
+  roof_clip: ["speed deck", "roof clips", "deck clips"]
+  quad_gutter: ["quad gutter", "gutter"]
+  flashing: ["flashing", "roof flashing"]
+
+  # General Hardware
+  gal_mal_plug: ["gal mal plug", "galv plug"]
+  standoff_bracket: ["standoff bracket", "standoff"]
+  brass_flanged_back_nut: ["flanged lock nut", "back nut", "flanged back nut"]
+  cover_plate: ["cover plate", "escutcheon"]
+  green_plug: ["green plug", "wall plug"]
+  copper_saddle: ["copper saddle", "pipe clip"]
+
+  # Tools
   pipe_wrench: ["stillson", "pipe spanner"]
   basin_wrench: ["tap back-nut spanner"]
   pipe_cutter: ["tube cutter"]
+  flaring_tool: ["flaring tool"]
+  ratchet_tool: ["ratchet tool", "crimp tool", "jaw set"]
 
-# Deliberately overlapping terms attached across unrelated subcategories on purpose,
-# to create real ambiguity for the refine tool to resolve (see generator for wiring).
+# Deliberately overlapping terms attached across unrelated/related subcategories on
+# purpose, to create real ambiguity for the search/extraction layer to resolve.
 ambiguous_pool:
   rose:
     - shower_rose
@@ -70,3 +144,31 @@ ambiguous_pool:
   unit:
     - electric_storage
     - vanity_unit
+  elbow:
+    - copper_elbow
+    - pex_fitting
+    - compression_fitting
+    - press_fitting
+  coupling:
+    - pex_fitting
+    - copper_coupling
+    - dwv_coupling
+  connector:
+    - pex_fitting
+    - dwv_coupling
+    - uniconnector
+  socket:
+    - pex_fitting
+    - dwv_coupling
+  reducer:
+    - pex_fitting
+    - pipe_reducer
+
+# Brand-level mishearings/renamings -- apply to whatever that brand makes,
+# regardless of product type. Attached by the generator the same way
+# `by_subcategory` terms are, just keyed off the chosen brand instead of
+# subcategory.
+brand_aliases:
+  Auspex: ["ozpex"]
+  Sharkbite: ["shark bite", "sharkflex", "shark max", "york flex"]
+  Foodpress: ["popper press", "food press"]

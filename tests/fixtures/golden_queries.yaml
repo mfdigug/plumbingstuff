@@ -42,3 +42,26 @@ queries:
     expect_any_subcategory: ["Heat Pump Hot Water System"]
   - query: "bath filler tap"
     expect_any_subcategory: ["Bath Mixer"]
+
+  # --- Brand-mishearing / trade-slang cases, grounded in real shop-talk notes
+  # (see data/seed/slang_terms.yaml's brand_aliases and by_subcategory pools) ---
+  - query: "need an ozpex elbow"
+    expect_any_subcategory: ["PEX Push-Fit Fitting", "PEX Lugged Elbow", "PEX Pipe"]
+  - query: "half inch flanged lock nut"
+    expect_any_subcategory: ["Brass Flanged Back Nut"]
+  - query: "speed deck clips for the roof"
+    expect_any_subcategory: ["Roof Clip"]
+  - query: "popper press coupling"
+    expect_any_subcategory: ["Copper Press Fitting"]
+  - query: "york flex connector for the pe pipe"
+    expect_any_subcategory: ["PE Electrofusion Fitting", "PEX Push-Fit Fitting", "PEX Lugged Elbow"]
+  - query: "wolfrate for the frame"
+    expect_any_subcategory: ["Threaded Rod"]
+  - query: "need a gal mal plug"
+    expect_any_subcategory: ["Galvanised Malleable Plug"]
+  - query: "smart pan for the toilet"
+    expect_any_subcategory: ["Smart Pan"]
+  - query: "socket bend for the dwv"
+    expect_any_subcategory: ["DWV Socket Bend"]
+  - query: "flexy flange for the dwv"
+    expect_any_subcategory: ["Flexy Flange"]
