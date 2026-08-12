@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
@@ -75,57 +75,30 @@ class ProductSearchRequest(CamelModel):
     branch_id: Optional[str] = None
 
 
-class ExtractedItemOut(CamelModel):
-    item_index: int
-    item_name: str
-    quantity: int
-    color: str
-    material: str
-    additional_context: str
-    semantic_search_hint: str
-    source_spans: list[str]
-
-
-class ExtractionOut(CamelModel):
-    intent: str
-    items: list[ExtractedItemOut]
-    search_hint: str
-
-
 class ProductSearchCandidateOut(CamelModel):
-    # Real backend runs two independent retrieval paths (a direct ES sales-rank
-    # query, and its own semantic/hybrid search) and fields are only populated
-    # by whichever path(s) actually produced this candidate -- e.g. an
-    # "elasticsearch"-sourced hit carries brand/es_*/source_rank, an
-    # "mcp"-sourced one carries country/pack_ratio instead. Only the fields
-    # every candidate has regardless of source are required here.
+    # This is the "alternates" shape: plain catalogue display facts only, no
+    # ranking verdict -- matches the real backend's contract, which attaches
+    # no score of any kind to an alternate.
     product_code: str
     description: str
-    search_score: float
-    item_index: int
-    item_name: str
-    source: str
-    confidence: float
     brand: Optional[str] = None
-    es_sales_rank: Optional[int] = None
-    es_relevance_score: Optional[float] = None
-    es_relevance_normalized: Optional[float] = None
-    es_query_strategy: Optional[str] = None
-    source_rank: Optional[int] = None
+    quantity: Optional[int] = None
     unit_of_measure: Optional[str] = None
     unit_of_measure2: Optional[str] = None
     gst_exempt: Optional[bool] = None
     image_url: Optional[str] = None
-    country: Optional[str] = None
     pack_ratio: Optional[int] = None
 
 
 class MatchedProductOut(ProductSearchCandidateOut):
-    found_by: list[str]
-    found_by_both: bool
-    top_rank_agreement: bool
-    fused_score: float
-    quantity: int
+    # Shortlisted products additionally carry the re-ranking verdict. The real
+    # backend exposes no numeric score here -- only a categorical level plus a
+    # quotable, human-written rationale (see mcp_backend/search.py for how
+    # this mock derives both from its own BM25+kNN signal).
+    rank: int
+    confidence_level: Literal["high", "medium", "low"]
+    rationale: str
+    family_name: Optional[str] = None
 
 
 class ProductSearchItemOut(CamelModel):
@@ -133,9 +106,9 @@ class ProductSearchItemOut(CamelModel):
     item_name: str
     spoken_text: list[str]
     quantity: int
-    status: str
+    status: Literal["matched", "needs_checking", "not_found"]
     products: list[MatchedProductOut]
-    extended_candidates: list[ProductSearchCandidateOut]
+    alternates: list[ProductSearchCandidateOut]
 
 
 class TimingsOut(CamelModel):
@@ -148,9 +121,7 @@ class TimingsOut(CamelModel):
 class ProductSearchResponse(CamelModel):
     request_id: str
     intent: str
-    extraction: ExtractionOut
     items: list[ProductSearchItemOut]
-    products: list[MatchedProductOut]
     summary: str
     truncated_items: int
     timings: TimingsOut

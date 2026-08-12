@@ -20,10 +20,25 @@ def product_search(query: str) -> dict:
     """Extract one or more distinct product requests out of a single free-text
     customer utterance (e.g. "a 90mm stormwater flex and a roll of PTFE tape")
     and search each. Callers do not pre-split items themselves -- this tool
-    does the splitting -- and the response carries richer per-item extraction
-    metadata (quantity/color/material/semantic search hint) plus both a
-    capped `products` match list and a longer `extendedCandidates` tail per
-    item.
+    does the splitting, using cross-item context (in "20mm copper pipe and
+    some elbows" the elbows inherit the 20mm).
+
+    Each item in the response carries a `status` that is the whole contract:
+    "matched" -- take `products[0]` and move on, no question needed.
+    "needs_checking" -- confirm before adding; lead with `products[0]`,
+    quoting the customer's own words from `spokenText`.
+    "not_found" -- retrieval found nothing; `products` is empty. This is a
+    normal outcome, not an error -- worth raising with the customer.
+
+    Each shortlisted product in `products` carries `rank`, a categorical
+    `confidenceLevel` ("high"/"medium"/"low" -- there is no numeric score),
+    and a `rationale` written to be quotable back to the customer. Two
+    products sharing a `familyName` are variants of the same underlying item.
+
+    `alternates` holds everything else retrieval found beyond the shortlist,
+    deduplicated, with no ranking verdict attached -- when the customer says
+    "no, the other one," the alternative is usually already here; offer it
+    directly rather than calling this tool again.
     """
     return _product_search(query)
 

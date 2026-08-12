@@ -145,19 +145,34 @@ def search_products(query, category=None, max_results=20):
     return candidates
 
 
-# --- product_search: shaped to match the agent-facing product-search contract ---
+# --- product_search: shaped to match the real maX Voice BFF /api/v1/product-search
+# contract (see docs/real-backend-contract.md) ---
 #
-# The real system this mimics runs two independent retrieval paths per item (a
-# direct Elasticsearch sales-rank query, and its own semantic/hybrid search)
-# and fuses their results (foundBy/foundByBoth/topRankAgreement/fusedScore).
-# This mock has only one retrieval path (search_products above), so every
-# candidate is labeled as found by both sources -- the fusion *fields* are real
-# and present for contract-shape parity, but the fusion *math* behind them is
-# not: there is nothing here to genuinely disagree or overlap.
+# The real backend runs two retrieval backends fused, then an LLM re-ranking
+# pass that writes a categorical confidenceLevel + a quotable rationale per
+# product, and groups near-duplicate variants under a familyName. This mock
+# has one retrieval path and no LLM call, so all three are derived directly
+# from the existing BM25+kNN `confidence`/`match_reason` signal computed in
+# search_products() above -- a strong literal/brand hit reads as high
+# confidence (-> status "matched"), a weak/semantic-only hit reads as
+# medium/low (-> "needs_checking"). This is a mock stand-in only: swap it out
+# wholesale once real API access lands, not a design to preserve.
 MAX_PRODUCT_SEARCH_ITEMS = 10
 DEFAULT_MATCHED_PER_ITEM = 4
 DEFAULT_EXTENDED_PER_ITEM = 8
 MOCK_ASSET_HOST = "https://mock-assets.internal/products"
+
+# Mock stand-in thresholds for the real LLM re-ranker's confidenceLevel -- tune
+# freely, there's nothing sacred about these numbers.
+HIGH_CONFIDENCE_THRESHOLD = 0.65
+MEDIUM_CONFIDENCE_THRESHOLD = 0.35
+
+# Only a "high" top candidate is confident enough to skip a clarifying question.
+CONFIDENCE_LEVEL_TO_STATUS = {"high": "matched", "medium": "needs_checking", "low": "needs_checking"}
+
+# Alternates carry no ranking verdict at all in the real contract -- just
+# catalogue display facts.
+ALTERNATE_FIELDS = ("product_code", "description", "unit_of_measure", "unit_of_measure2", "pack_ratio", "gst_exempt", "image_url")
 
 
 def _elapsed_ms(start):
@@ -183,92 +198,80 @@ def _unit_of_measure(name):
     return "EA", None, None
 
 
-def _format_candidate(candidate, item_index, item_name, rank, item_relevance_score, item_relevance_normalized):
-    # This mock has one retrieval path (search_products above), unlike the real
-    # backend's two (a direct ES sales-rank query and its own semantic/hybrid
-    # search) -- alternating which fields a candidate carries mimics that
-    # per-source field variety (see ProductSearchCandidateOut) without faking
-    # a second retrieval path outright. Every candidate is a genuine match
-    # either way; only which metadata is attached differs.
-    confidence = candidate["confidence"]
-    source = "elasticsearch" if rank % 2 == 1 else "mcp"
-    unit_of_measure, unit_of_measure2, pack_ratio = _unit_of_measure(candidate["name"])
+def _confidence_level(confidence):
+    if confidence >= HIGH_CONFIDENCE_THRESHOLD:
+        return "high"
+    if confidence >= MEDIUM_CONFIDENCE_THRESHOLD:
+        return "medium"
+    return "low"
 
-    formatted = {
+
+def _rationale(match_reason):
+    if match_reason.startswith("matched search_terms:"):
+        terms = match_reason.split(":", 1)[1].strip()
+        return f"Matches the requested item on {terms}."
+    if match_reason.startswith("brand match:"):
+        brand = match_reason.split(":", 1)[1].strip()
+        return f"Matches on brand ({brand}) and product name."
+    if match_reason == "matched on name/description keywords":
+        return "Matches closely on the product name and description."
+    return "Retrieved as a semantically related option rather than an exact keyword match."
+
+
+def _family_name(candidate):
+    return f"{candidate['brand']} {candidate['subcategory']}"
+
+
+def _format_candidate(candidate, rank):
+    unit_of_measure, unit_of_measure2, pack_ratio = _unit_of_measure(candidate["name"])
+    return {
         "product_code": candidate["sku"],
         "description": candidate["name"],
-        "search_score": round(confidence, 4),
-        "item_index": item_index,
-        "item_name": item_name,
-        "source": source,
-        "confidence": round(confidence, 4),
-        "image_url": f"{MOCK_ASSET_HOST}/{candidate['sku']}.jpg",
-        "found_by": ["elasticsearch", "mcp"] if rank == 1 else [source],
-        "found_by_both": rank == 1,
-        "top_rank_agreement": False,
-        "fused_score": round((confidence + 1 / rank) / 2, 4),
+        "brand": _brand_code(candidate["brand"]),
         "quantity": 1,
+        "unit_of_measure": unit_of_measure,
+        "unit_of_measure2": unit_of_measure2,
+        "pack_ratio": pack_ratio,
+        "gst_exempt": False,
+        "image_url": f"{MOCK_ASSET_HOST}/{candidate['sku']}.jpg",
+        "rank": rank,
+        "confidence_level": _confidence_level(candidate["confidence"]),
+        "rationale": _rationale(candidate["match_reason"]),
+        "family_name": _family_name(candidate),
     }
-    if source == "elasticsearch":
-        formatted.update(
-            brand=_brand_code(candidate["brand"]),
-            es_sales_rank=round(confidence * 2000),
-            es_relevance_score=item_relevance_score,
-            es_relevance_normalized=item_relevance_normalized,
-            es_query_strategy="enriched-query",
-            source_rank=rank,
-            unit_of_measure=unit_of_measure,
-            unit_of_measure2=unit_of_measure2,
-            gst_exempt=False,
-            pack_ratio=pack_ratio,
-        )
-    else:
-        formatted.update(country="AU", unit_of_measure=unit_of_measure, unit_of_measure2=unit_of_measure2, gst_exempt=False, pack_ratio=pack_ratio)
-    return formatted
 
 
 def _build_item_result(item, matched_per_item, extended_per_item):
     query = item["semantic_search_hint"] or item["item_name"]
     candidates = search_products(query, max_results=matched_per_item + extended_per_item)
 
-    top_confidence = candidates[0]["confidence"] if candidates else 0.0
-    item_relevance_score = round(top_confidence * 20, 4)
-    item_relevance_normalized = round(top_confidence, 4)
-
-    formatted = [
-        _format_candidate(c, item["item_index"], item["item_name"], rank, item_relevance_score, item_relevance_normalized)
-        for rank, c in enumerate(candidates, start=1)
-    ]
+    formatted = [_format_candidate(c, rank) for rank, c in enumerate(candidates, start=1)]
     for entry in formatted:
         entry["quantity"] = item["quantity"]
 
     matched = formatted[:matched_per_item]
-    extended = formatted[matched_per_item : matched_per_item + extended_per_item]
-    # Extended candidates are unenriched tail hits -- no fusion verdict,
-    # order-quantity, or brand lookup was computed for them, so those fields
-    # are dropped rather than faked. (Unlike brand, the other per-source
-    # fields -- es_*/country/etc -- do still apply to the tail.)
-    extended = [
-        {k: v for k, v in entry.items() if k not in ("found_by", "found_by_both", "top_rank_agreement", "fused_score", "quantity", "brand")}
-        for entry in extended
+    alternates = [
+        {k: v for k, v in entry.items() if k in ALTERNATE_FIELDS}
+        for entry in formatted[matched_per_item : matched_per_item + extended_per_item]
     ]
+
+    status = "not_found" if not matched else CONFIDENCE_LEVEL_TO_STATUS[matched[0]["confidence_level"]]
 
     return {
         "item_index": item["item_index"],
         "item_name": item["item_name"],
         "spoken_text": item["source_spans"],
         "quantity": item["quantity"],
-        "status": "matched" if matched else "no_match",
+        "status": status,
         "products": matched,
-        "extended_candidates": extended,
+        "alternates": alternates,
     }
 
 
 def product_search(query, matched_per_item=DEFAULT_MATCHED_PER_ITEM, extended_per_item=DEFAULT_EXTENDED_PER_ITEM):
     """Extract one or more distinct product requests out of a free-text query
-    and search each, returning the agent-facing shape: per-item extraction
-    metadata, matched + extended candidates, a flattened top-level product
-    list, and a human-readable summary.
+    and search each, returning the real /api/v1/product-search envelope shape:
+    per-item status/shortlist/alternates and a human-readable summary.
     """
     t0 = time.perf_counter()
     extracted = extract_items(query)
@@ -283,8 +286,7 @@ def product_search(query, matched_per_item=DEFAULT_MATCHED_PER_ITEM, extended_pe
     search_ms = _elapsed_ms(t1)
 
     t2 = time.perf_counter()
-    products = [product for item in items for product in item["products"]]
-    total = len(products)
+    total = sum(len(item["products"]) for item in items)
     summary = (
         f"{total} eligible product option{'s' if total != 1 else ''} shown below in ranked order."
         if total
@@ -293,13 +295,8 @@ def product_search(query, matched_per_item=DEFAULT_MATCHED_PER_ITEM, extended_pe
     rank_ms = _elapsed_ms(t2)
 
     return {
-        "extraction": {
-            "intent": "product_search",
-            "items": extracted,
-            "search_hint": "mcp_preferred",
-        },
+        "intent": "product_search",
         "items": items,
-        "products": products,
         "summary": summary,
         "truncated_items": truncated_items,
         "timings": {

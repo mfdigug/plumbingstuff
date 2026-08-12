@@ -28,7 +28,10 @@ def print_product_search_results(data):
     for item in data["items"]:
         print(f"  \"{item['itemName']}\" x{item['quantity']} ({item['status']}):")
         for p in item["products"]:
-            print(f"    {p['productCode']:16s} conf={p['confidence']:.2f}  {p['description']}")
+            print(f"    {p['productCode']:16s} [{p['confidenceLevel']:6s}] {p['description']}")
+            print(f"      -> {p['rationale']}")
+        if item.get("alternates"):
+            print(f"    ...{len(item['alternates'])} alternates")
 
 
 def print_help():
@@ -107,7 +110,7 @@ async def run_via_mcp():
     def _to_camel_response(data):
         from rest_api.schemas import ProductSearchResponse
 
-        return ProductSearchResponse(request_id="local", intent="product_search", **data).model_dump(by_alias=True)
+        return ProductSearchResponse(request_id="local", **data).model_dump(by_alias=True)
 
     while True:
         try:
