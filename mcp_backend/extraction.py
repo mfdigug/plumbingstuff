@@ -54,11 +54,26 @@ def _load_attribute_vocab():
     return colors, materials
 
 
+@lru_cache(maxsize=1)
+def _load_unstocked_brands():
+    with open(SEED_DIR / "unstocked_brands.yaml") as f:
+        data = yaml.safe_load(f) or {}
+    return data.get("unstocked_brands", [])
+
+
 def _find_term(text_lower, vocab):
     for term in sorted(vocab, key=len, reverse=True):
         if term in text_lower:
             return term
     return ""
+
+
+def _find_unstocked_brand(text_lower):
+    for brand in _load_unstocked_brands():
+        names = [brand["name"], *brand.get("aliases", [])]
+        if any(name.lower() in text_lower for name in names):
+            return brand["name"]
+    return None
 
 
 def _parse_span(span):
@@ -79,6 +94,7 @@ def _parse_span(span):
     remainder_lower = remainder.lower()
     color = _find_term(remainder_lower, colors)
     material = _find_term(remainder_lower, materials)
+    unstocked_brand = _find_unstocked_brand(remainder_lower)
     additional_context = f"{quantity} {container}" if container else ""
 
     hint_parts = [part for part in (material, color) if part and part not in remainder_lower]
@@ -98,6 +114,7 @@ def _parse_span(span):
         "additional_context": additional_context,
         "semantic_search_hint": semantic_search_hint,
         "clean_span": clean_span,
+        "unstocked_brand": unstocked_brand,
     }
 
 
@@ -124,6 +141,7 @@ def extract_items(query):
                 "additional_context": parsed["additional_context"],
                 "semantic_search_hint": parsed["semantic_search_hint"],
                 "source_spans": [parsed["clean_span"]],
+                "unstocked_brand": parsed["unstocked_brand"],
             }
         )
     return items

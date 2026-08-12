@@ -44,3 +44,13 @@ def test_source_spans_drop_bare_article_but_keep_container_phrase():
     items = extract_items("I need a 90mm stormwater flex and a roll of PTFE tape")
     assert items[0]["source_spans"] == ["90mm stormwater flex"]
     assert items[1]["source_spans"] == ["a roll of PTFE tape"]
+
+
+def test_unstocked_brand_is_detected():
+    items = extract_items("a jaeger fitting")
+    assert items[0]["unstocked_brand"] == "Jaeger"
+
+
+def test_unstocked_brand_is_none_for_stocked_brands():
+    items = extract_items("an auspex elbow")
+    assert items[0]["unstocked_brand"] is None

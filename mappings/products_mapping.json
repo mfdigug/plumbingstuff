@@ -15,12 +15,24 @@
             "mixer tap, mixer",
             "vanity, vanity unit"
           ]
+        },
+        "customer_filler_words": {
+          "type": "stop",
+          "stopwords": [
+            "a", "an", "the", "and", "or", "of", "to", "in", "on", "for", "with",
+            "got", "get", "getting", "gotten", "any", "some", "need", "needed",
+            "needing", "want", "wanted", "wanting", "please", "just", "like",
+            "have", "having", "has", "had", "i", "im", "you", "your", "yours",
+            "can", "could", "would", "should", "do", "does", "did", "is", "are",
+            "was", "were", "be", "been", "being", "this", "that", "these",
+            "those", "it", "its", "one", "ones", "grab", "give", "me", "bag", "bags"
+          ]
         }
       },
       "analyzer": {
         "trade_text": {
           "tokenizer": "standard",
-          "filter": ["lowercase", "asciifolding", "trade_synonyms"]
+          "filter": ["lowercase", "asciifolding", "customer_filler_words", "trade_synonyms"]
         }
       }
     }

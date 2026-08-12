@@ -255,7 +255,20 @@ def _build_item_result(item, matched_per_item, extended_per_item):
         for entry in formatted[matched_per_item : matched_per_item + extended_per_item]
     ]
 
-    status = "not_found" if not matched else CONFIDENCE_LEVEL_TO_STATUS[matched[0]["confidence_level"]]
+    unstocked_brand = item.get("unstocked_brand")
+    if not matched:
+        status = "not_found"
+    elif unstocked_brand:
+        # The customer named a real brand this store doesn't carry -- always
+        # flag for confirmation rather than silently substituting a different
+        # brand's product at whatever confidence the substitute happened to score.
+        status = "needs_checking"
+        matched[0]["rationale"] = (
+            f"{unstocked_brand} is not a brand this store stocks; "
+            f"showing the closest equivalent instead ({matched[0]['description']})."
+        )
+    else:
+        status = CONFIDENCE_LEVEL_TO_STATUS[matched[0]["confidence_level"]]
 
     return {
         "item_index": item["item_index"],

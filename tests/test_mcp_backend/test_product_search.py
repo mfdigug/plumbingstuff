@@ -62,3 +62,20 @@ def test_not_found_status_when_query_has_no_hits():
     result = product_search("zzz-totally-nonexistent-product-zzz")
     assert result["items"][0]["status"] == "not_found"
     assert result["items"][0]["products"] == []
+
+
+def test_unstocked_brand_forces_needs_checking_with_explanatory_rationale():
+    result = product_search("need a jaeger fitting")
+    item = result["items"][0]
+    assert item["status"] == "needs_checking"
+    assert "Jaeger" in item["products"][0]["rationale"]
+
+
+def test_filler_words_alone_do_not_produce_a_false_positive_match():
+    # "any"/"got"/"a"/"bag"/"of" are all filler stopped by the trade_text
+    # analyzer -- previously they fuzzy-collided with real trade terms
+    # ("any"~"and", "bag"~"bar") and returned a confidently wrong match.
+    for query in ["got any violin strings", "need a bag of quikrete"]:
+        result = product_search(query)
+        assert result["items"][0]["status"] == "not_found"
+        assert result["items"][0]["products"] == []

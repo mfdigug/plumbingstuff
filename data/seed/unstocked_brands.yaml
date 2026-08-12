@@ -1,0 +1,13 @@
+# Brands a customer might name by mistake or from habit that this store does
+# NOT stock -- sourced directly from shop-talk notes ("Press Fittings and
+# Brand Names": Foodpress is the stocked press-fitting brand; Chem Press and
+# Jaeger are explicitly called out as not stocked).
+#
+# Consumed by mcp_backend/extraction.py to flag when a query names one of
+# these, so mcp_backend/search.py can say so via `rationale` instead of
+# silently substituting a different brand's product at high confidence.
+unstocked_brands:
+  - name: "Chem Press"
+    aliases: ["chempress", "chem-press"]
+  - name: "Jaeger"
+    aliases: []
