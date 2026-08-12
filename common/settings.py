@@ -34,8 +34,5 @@ class Settings(BaseSettings):
             return f"http://{self.mcp_server_hostport}/mcp"
         return self.mcp_server_url
 
-    rest_api_host: str = "0.0.0.0"
-    rest_api_port: int = 8080
-
 
 settings = Settings()
