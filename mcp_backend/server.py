@@ -9,7 +9,6 @@ from mcp.server.fastmcp import FastMCP
 from starlette.responses import PlainTextResponse
 
 from common.settings import settings
-from mcp_backend.availability import check_availability as _check_availability
 from mcp_backend.search import product_search as _product_search
 
 mcp = FastMCP("plumbing-mock-backend", host=settings.mcp_server_host, port=settings.mcp_server_port)
@@ -41,21 +40,6 @@ def product_search(query: str) -> dict:
     directly rather than calling this tool again.
     """
     return _product_search(query)
-
-
-@mcp.tool()
-def check_availability(
-    sku: str, store_id: str | None = None, state: str | None = None, postcode: str | None = None
-) -> dict:
-    """Check stock for a single SKU across stores. With no filters, `results`
-    covers all 15 AU stores. `state` (e.g. "NSW") or `postcode` narrows to a region;
-    `store_id` targets one store. Each result's `status` is one of: "in_stock",
-    "out_of_stock" (carried here but currently zero on hand), "special_order" (not
-    on the shelf but orderable -- see `eta_days`), or "not_carried" (this store
-    never stocks this SKU at all). These are meaningfully different things to tell
-    a caller -- do not treat "out_of_stock" and "not_carried" as the same thing.
-    """
-    return {"results": _check_availability(sku, store_id=store_id, state=state, postcode=postcode)}
 
 
 @mcp.custom_route("/healthz", methods=["GET"])

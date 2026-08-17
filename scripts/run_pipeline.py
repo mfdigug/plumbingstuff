@@ -1,4 +1,4 @@
-"""Orchestrate the full rebuild: catalog -> stock -> customers -> embeddings ->
+"""Orchestrate the full rebuild: catalog -> customers -> embeddings ->
 ES indices -> bulk load. Run this after any change to data/seed/*.yaml or the
 embedding model.
 """
@@ -10,7 +10,6 @@ SCRIPTS_DIR = Path(__file__).resolve().parent
 
 STEPS = [
     "generate_mock_catalog.py",
-    "generate_stock_levels.py",
     "generate_customers.py",
     "generate_embeddings.py",
     "build_es_indices.py",

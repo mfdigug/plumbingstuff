@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from rest_api.cart_store import get_customer
+from rest_api.customer_store import get_customer
 from rest_api.schemas import CustomerProfileOut
 
 router = APIRouter()

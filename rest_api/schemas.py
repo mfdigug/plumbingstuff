@@ -4,24 +4,6 @@ from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
 
-class StoreStockOut(BaseModel):
-    store_id: str
-    store_name: str
-    suburb: str
-    state: str
-    postcode: str
-    qty_on_hand: int
-    status: str
-    eta_days: Optional[int] = None
-    last_updated: Optional[str] = None
-
-
-class AvailabilityResponse(BaseModel):
-    sku: str
-    generated_at: str
-    locations: list[StoreStockOut]
-
-
 class AddressOut(BaseModel):
     street: str
     suburb: str
@@ -37,28 +19,6 @@ class CustomerProfileOut(BaseModel):
     phone: str
     preferred_store_id: str
     address: AddressOut
-
-
-class AddCartItemRequest(BaseModel):
-    sku: str
-    quantity: int = Field(default=1, ge=1)
-
-
-class CartItemOut(BaseModel):
-    sku: str
-    name: str
-    brand: str
-    quantity: int
-    unit_price_aud: float
-    subtotal_aud: float
-    added_at: Optional[str] = None
-
-
-class CartResponse(BaseModel):
-    customer_id: str
-    items: list[CartItemOut]
-    subtotal_aud: float
-    updated_at: Optional[str] = None
 
 
 # --- product-search: agent-facing contract, camelCase over the wire (see

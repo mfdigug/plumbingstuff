@@ -51,14 +51,5 @@ class MCPBackendClient:
 
         return _parse_tool_payload(result)
 
-    async def _call_tool(self, name, arguments):
-        payload = await self._call_tool_raw(name, arguments)
-        return payload.get("results", [])
-
-    async def availability(self, sku, store_id=None, state=None, postcode=None):
-        return await self._call_tool(
-            "check_availability", {"sku": sku, "store_id": store_id, "state": state, "postcode": postcode}
-        )
-
     async def product_search(self, query):
         return await self._call_tool_raw("product_search", {"query": query})

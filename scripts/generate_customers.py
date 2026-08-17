@@ -1,7 +1,7 @@
 """Generate ~30 mock customers (Faker en_AU — flavor text, not architecturally
-significant like store addresses). Every customer starts with an empty cart.
+significant like store addresses).
 
-Writes data/generated/customers.jsonl and data/generated/carts.jsonl.
+Writes data/generated/customers.jsonl.
 """
 import argparse
 import json
@@ -31,7 +31,6 @@ def main():
 
     now = datetime.now(timezone.utc)
     customers = []
-    carts = []
 
     for i in range(1, args.count + 1):
         customer_id = f"CUST-{i:04d}"
@@ -64,11 +63,7 @@ def main():
         for customer in customers:
             f.write(json.dumps(customer) + "\n")
 
-    with open(GEN_DIR / "carts.jsonl", "w") as f:
-        for cart in carts:
-            f.write(json.dumps(cart) + "\n")
-
-    print(f"Wrote {len(customers)} customers and {len(carts)} carts to {GEN_DIR}")
+    print(f"Wrote {len(customers)} customers to {GEN_DIR}")
 
 
 if __name__ == "__main__":

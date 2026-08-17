@@ -9,9 +9,7 @@ class Settings(BaseSettings):
     # es_host when present, since Render's internal hostnames aren't known upfront.
     es_hostport: str = ""
     es_index_products: str = "products"
-    es_index_stock: str = "stock"
     es_index_customers: str = "customers"
-    es_index_carts: str = "carts"
 
     embedding_model_name: str = "BAAI/bge-small-en-v1.5"
 

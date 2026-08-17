@@ -28,19 +28,10 @@ def client():
 
 
 @pytest.fixture()
-def any_sku():
-    from mcp_backend.es_client import get_es_client
-
-    es = get_es_client()
-    resp = es.search(index=settings.es_index_products, query={"match_all": {}}, size=1)
-    return resp["hits"]["hits"][0]["_source"]["sku"]
-
-
-@pytest.fixture()
 def require_live_stack():
-    """Request this in tests that exercise search/availability/cart end to
-    end -- they need both Elasticsearch and a running mcp-server, unlike the
-    404/422 error-mapping cases which fail before ever reaching MCP.
+    """Request this in tests that exercise search end to end -- they need
+    both Elasticsearch and a running mcp-server, unlike the 404/422
+    error-mapping cases which fail before ever reaching MCP.
     """
     if not _mcp_server_reachable():
         pytest.skip(

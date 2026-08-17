@@ -17,12 +17,6 @@ REST_BASE_URL = "http://localhost:8080/v1"
 PRODUCT_SEARCH_URL = "http://localhost:8080/api/v1/product-search"
 
 
-def print_stock(locations):
-    for loc in locations:
-        eta = f" eta={loc['eta_days']}d" if loc.get("eta_days") else ""
-        print(f"  {loc['store_name']:26s} {loc['state']:4s} qty={loc['qty_on_hand']:<3} status={loc['status']}{eta}")
-
-
 def print_product_search_results(data):
     print(f"  {data['summary']}")
     for item in data["items"]:
@@ -38,11 +32,7 @@ def print_help():
     print(
         "Commands:\n"
         "  psearch <free text query>      (agent-style POST /product-search, e.g. psearch a roll of PTFE tape)\n"
-        "  stock <sku> [state]\n"
         "  customer <customer_id>\n"
-        "  cart add <customer_id> <sku> [qty]\n"
-        "  cart view <customer_id>\n"
-        "  cart remove <customer_id> <sku>\n"
         "  quit\n"
     )
 
@@ -63,37 +53,12 @@ async def run_rest():
                     resp = await client.post(PRODUCT_SEARCH_URL, json={"query": query, "region": "AU", "branchId": "1234"})
                     resp.raise_for_status()
                     print_product_search_results(resp.json())
-                elif cmd.startswith("stock "):
-                    parts = cmd[len("stock "):].split()
-                    params = {"sku": parts[0]}
-                    if len(parts) > 1:
-                        params["state"] = parts[1]
-                    resp = await client.get("/availability", params=params)
-                    if resp.status_code == 404:
-                        print("  SKU not found")
-                        continue
-                    resp.raise_for_status()
-                    print_stock(resp.json()["locations"])
                 elif cmd.startswith("customer "):
                     resp = await client.get(f"/customers/{cmd[len('customer '):].strip()}")
                     if resp.status_code == 404:
                         print("  customer not found")
                         continue
                     resp.raise_for_status()
-                    print(f"  {resp.json()}")
-                elif cmd.startswith("cart add "):
-                    parts = cmd[len("cart add "):].split()
-                    customer_id, sku = parts[0], parts[1]
-                    qty = int(parts[2]) if len(parts) > 2 else 1
-                    resp = await client.post(f"/cart/{customer_id}/items", json={"sku": sku, "quantity": qty})
-                    print(f"  {resp.json()}")
-                elif cmd.startswith("cart view "):
-                    resp = await client.get(f"/cart/{cmd[len('cart view '):].strip()}")
-                    print(f"  {resp.json()}")
-                elif cmd.startswith("cart remove "):
-                    parts = cmd[len("cart remove "):].split()
-                    customer_id, sku = parts[0], parts[1]
-                    resp = await client.delete(f"/cart/{customer_id}/items/{sku}")
                     print(f"  {resp.json()}")
                 elif cmd == "help":
                     print_help()
@@ -104,7 +69,6 @@ async def run_rest():
 
 
 async def run_via_mcp():
-    from mcp_backend.availability import check_availability
     from mcp_backend.search import product_search
 
     def _to_camel_response(data):
@@ -122,10 +86,6 @@ async def run_via_mcp():
 
         if cmd.startswith("psearch "):
             print_product_search_results(_to_camel_response(product_search(cmd[len("psearch "):].strip())))
-        elif cmd.startswith("stock "):
-            parts = cmd[len("stock "):].split()
-            state = parts[1] if len(parts) > 1 else None
-            print_stock(check_availability(parts[0], state=state))
         elif cmd == "help":
             print_help()
         else:

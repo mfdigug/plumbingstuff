@@ -1,7 +1,7 @@
 """Bulk-load data/generated/*.jsonl into their Elasticsearch indices.
 
-products_with_embeddings.jsonl -> products, stock.jsonl -> stock,
-customers.jsonl -> customers, carts.jsonl -> carts (doc _id = customer_id).
+products_with_embeddings.jsonl -> products,
+customers.jsonl -> customers (doc _id = customer_id).
 """
 import json
 import sys
@@ -42,18 +42,10 @@ def main():
     products = load_jsonl(GEN_DIR / "products_with_embeddings.jsonl")
     bulk_index(es, settings.es_index_products, products, id_field="sku")
 
-    stock = load_jsonl(GEN_DIR / "stock.jsonl")
-    bulk_index(es, settings.es_index_stock, stock)
-
     customers = load_jsonl(GEN_DIR / "customers.jsonl")
     bulk_index(es, settings.es_index_customers, customers, id_field="customer_id")
 
-    carts = load_jsonl(GEN_DIR / "carts.jsonl")
-    bulk_index(es, settings.es_index_carts, carts, id_field="customer_id")
-
-    es.indices.refresh(index=",".join(
-        [settings.es_index_products, settings.es_index_stock, settings.es_index_customers, settings.es_index_carts]
-    ))
+    es.indices.refresh(index=",".join([settings.es_index_products, settings.es_index_customers]))
 
 
 if __name__ == "__main__":

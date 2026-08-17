@@ -4,7 +4,7 @@
 #   rest-api (public Web Service)
 #     -> mcp-server (private Service, internal only)
 #         -> elasticsearch (private Service, internal only)
-#   rest-api also talks to elasticsearch directly for customers/cart (bypasses MCP).
+#   rest-api also talks to elasticsearch directly for customers (bypasses MCP).
 #
 # Deploy: Render dashboard -> New -> Blueprint -> point at this repo.
 #

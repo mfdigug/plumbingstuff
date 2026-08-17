@@ -1,4 +1,4 @@
-"""Create (or recreate, for dev) the products/stock/customers/carts indices from
+"""Create (or recreate, for dev) the products/customers indices from
 mappings/*.json.
 """
 import json
@@ -14,9 +14,7 @@ MAPPINGS_DIR = Path(__file__).resolve().parent.parent / "mappings"
 
 INDEX_TO_MAPPING_FILE = {
     settings.es_index_products: "products_mapping.json",
-    settings.es_index_stock: "stock_mapping.json",
     settings.es_index_customers: "customers_mapping.json",
-    settings.es_index_carts: "carts_mapping.json",
 }
 
 
