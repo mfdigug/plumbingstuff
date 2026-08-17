@@ -18,6 +18,25 @@ def test_numeric_quantity_is_parsed():
     assert [i["quantity"] for i in items] == [3, 2]
 
 
+def test_number_words_beyond_three_are_parsed():
+    items = extract_items("four copper elbows, ten ball valves, a dozen tek screws and twenty tile spacers")
+    assert [i["quantity"] for i in items] == [4, 10, 12, 20]
+    assert [i["item_name"] for i in items] == ["copper elbows", "ball valves", "tek screws", "tile spacers"]
+
+
+def test_a_dozen_does_not_get_stranded_by_the_bare_article():
+    # "a" alone means quantity 1 -- must not shadow the two-word "a dozen" phrase.
+    items = extract_items("a dozen tek screws")
+    assert items[0]["quantity"] == 12
+    assert items[0]["item_name"] == "tek screws"
+
+
+def test_unrecognized_quantity_word_defaults_to_one():
+    items = extract_items("hundred copper elbows")
+    assert items[0]["quantity"] == 1
+    assert items[0]["item_name"] == "hundred copper elbows"
+
+
 def test_single_item_query_returns_one_entry():
     items = extract_items("basin tap chrome")
     assert len(items) == 1

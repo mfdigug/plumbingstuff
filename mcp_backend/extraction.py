@@ -27,13 +27,21 @@ _QUANTITY_WORDS = {
     "a": 1, "an": 1, "one": 1, "single": 1,
     "couple": 2, "pair": 2, "two": 2,
     "few": 3, "three": 3,
+    "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10,
+    "eleven": 11, "twelve": 12, "dozen": 12, "a dozen": 12,
+    "thirteen": 13, "fourteen": 14, "fifteen": 15, "sixteen": 16,
+    "seventeen": 17, "eighteen": 18, "nineteen": 19, "twenty": 20,
 }
 _CONTAINER_WORDS = [
     "rolls", "roll", "tubes", "tube", "boxes", "box",
     "packs", "pack", "sets", "set", "pairs", "pair", "lengths", "length",
 ]
+# Longest quantity word/phrase first, so "a dozen" wins over the standalone "a"
+# that would otherwise greedily match its first word and strand "dozen" in the
+# item name -- same fix as _find_term's longest-first vocab ordering below.
+_QUANTITY_WORDS_PATTERN = "|".join(sorted(_QUANTITY_WORDS, key=len, reverse=True))
 _LEADING_QTY_RE = re.compile(
-    r"^(?:(\d+)\s*x?\s+|(" + "|".join(_QUANTITY_WORDS) + r")\s+)?"
+    r"^(?:(\d+)\s*x?\s+|(" + _QUANTITY_WORDS_PATTERN + r")\s+)?"
     r"(?:(" + "|".join(_CONTAINER_WORDS) + r")\s+of\s+)?",
     re.IGNORECASE,
 )
